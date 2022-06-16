@@ -51,13 +51,13 @@ func (m *DbMasterFund) InsertFund(transactionType, sponsorIDorVID, sponsorNameOr
 		if err != nil {
 			log.Fatal(err)
 		}
-		//fmt.Println(m.BalancedFund)
+
 	}
-	//
+
 	//Convert m.BalancedFund and deposit into INT
 	lastBalance, err := strconv.Atoi(m.BalancedFund)
 	newDeposit, err := strconv.Atoi(amount)
-	//
+
 	//Return sum from adding new deposit with latest balance from database
 	var sum = lastBalance + newDeposit
 
@@ -65,7 +65,7 @@ func (m *DbMasterFund) InsertFund(transactionType, sponsorIDorVID, sponsorNameOr
 	newBalanced := strconv.Itoa(sum)
 
 	fmt.Println(newBalanced)
-	//
+
 	query := fmt.Sprintf("INSERT INTO MasterFund (TransactionType, SponsorIDOrVID, "+
 		"SponsorNameOrUserID, Amount, BalancedFund) VALUES('%s','%s','%s','%s','%s')",
 		transactionType, sponsorIDorVID, sponsorNameOrUserID, amount, newBalanced)
@@ -126,5 +126,4 @@ func (m *DbMasterFund) ListTransactionRecords(w http.ResponseWriter) {
 		_ = json.NewEncoder(w).Encode(newRecord)
 
 	}
-	//fmt.Println(MasterFund)
 }
