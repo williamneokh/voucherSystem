@@ -4,17 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"github.com/williamneokh/voucherSystem/voucherAPI/database"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
+var vip *config.Config
+
+func ViperHandler(a *config.Config) {
+	vip = a
+}
+
+//ValidKey check if client key matches api key
+func ValidKey(r *http.Request) bool {
+
+	v := r.URL.Query()
+	if key, ok := v["key"]; ok {
+		if key[0] == vip.ApiToken {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+}
+
 func Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "You are connected to Voucher System API")
 }
 
 func Sponsor(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("401 -Invalid key"))
+		return
+	}
+
 	params := mux.Vars(r)
 
 	if r.Header.Get("Content-type") == "application/json" {
@@ -62,4 +90,18 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+}
+func AllMasterFundRecords(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("401 -Invalid key"))
+		return
+	}
+
+	var MasterFund database.DbMasterFund
+
+	MasterFund.ListTransactionRecords(w)
+
+	// returns all the courses in JSON
+
 }

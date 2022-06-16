@@ -17,13 +17,15 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-	database.NewDataRepo(&vip)
+	database.ViperDatabase(&vip)
+	handler.ViperHandler(&vip)
 
 	//sponsor = make(map[string]handler.Sponsorship)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/api", handler.Home)
 	router.HandleFunc("/api/sponsor/{sponsorid}", handler.Sponsor).Methods("POST")
+	router.HandleFunc("/api/masterfund", handler.AllMasterFundRecords).Methods("POST")
 
 	fmt.Println("Listening at port" + portNumber)
 

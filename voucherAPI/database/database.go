@@ -2,13 +2,16 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"log"
+	"net/http"
 	"strconv"
 )
 
+//DbMasterFund struct is associated with MasterFund table
 type DbMasterFund struct {
 	Mfund_ID            int    `json:"Mfund_ID"`
 	TransactionType     string `json:"TransactionType"`
@@ -19,9 +22,11 @@ type DbMasterFund struct {
 	BalancedFund        string `json:"BalancedFund"`
 }
 
+var MasterFund map[string]DbMasterFund
+
 var vip *config.Config
 
-func NewDataRepo(a *config.Config) {
+func ViperDatabase(a *config.Config) {
 	vip = a
 }
 
@@ -96,4 +101,30 @@ func (m *DbMasterFund) CheckSponsorIDorVID(id string) bool {
 		}
 	}
 	return false
+}
+
+func (m *DbMasterFund) ListTransactionRecords(w http.ResponseWriter) {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	results, err := db.Query("SELECT * FROM MasterFund")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var newRecord DbMasterFund
+	for results.Next() {
+		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
+		if err != nil {
+			log.Fatal(err)
+		}
+		newRecord = DbMasterFund{m.Mfund_ID, m.TransactionType, m.SponsorIDOrVID, m.SponsorNameOrUserID, m.TransactionDate, m.Amount, m.BalancedFund}
+		_ = json.NewEncoder(w).Encode(newRecord)
+
+	}
+	//fmt.Println(MasterFund)
 }
