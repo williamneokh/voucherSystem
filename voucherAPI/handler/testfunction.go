@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/williamneokh/voucherSystem/voucherAPI/database"
 	"net/http"
 )
 
@@ -44,6 +43,6 @@ func TestingGround(w http.ResponseWriter, r *http.Request) {
 
 	*/
 
-	var addfloat database.DbFloatFund
-	addfloat.AddFloat("039284k", "5")
+	//var addfloat database.DbFloatFund
+	//addfloat.AddFloat("039284k", "5")
 }

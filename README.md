@@ -5,9 +5,13 @@ Method: "POST"
 
 localhost:3000/api/sponsor/{sponsorID}
 
-example JSON Return
+example JSON INPUT
 
-{"SponsorNameOrUserID":"Seng Siong","Amount":"2000"}
+{
+"SponsorNameOrUserID":"Seng Siong",
+"Amount":"2000"
+}
+
 
 ### List Deposit/Withdrawal from MasterFund table
 Method: "POST"
@@ -21,3 +25,19 @@ example JSON Return
 {"Mfund_ID":26,"TransactionType":"Deposit","SponsorIDOrVID":"SS02","SponsorNameOrUserID":"Seng Siong","TransactionDate":"2022-06-16 21:18:34","Amount":"2000","BalancedFund":"5000"}
 
 
+### User exchange Voucher
+Method: "POST"
+
+localhost:3000/api/getvoucher
+
+example JSON INPUT
+
+{
+"UserID":"User001",
+"Points":"1000",
+"Value":"5"
+}
+
+example JSON Return
+
+{"VID":"4c04afc3-309e-4016-a753-c031d0e686af","UserID":"User001","Points":"1000","Value":"5"}

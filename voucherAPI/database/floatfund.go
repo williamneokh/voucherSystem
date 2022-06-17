@@ -2,8 +2,9 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"log"
+	"sync"
 )
 
 type DbFloatFund struct {
@@ -16,11 +17,13 @@ type DbFloatFund struct {
 	Merchant_ID     string `json:"Merchant_ID"`
 }
 
-func (m *DbFloatFund) AddFloat(VID, floatValue string) {
+//AddFloat transfer from the MasterFund to FloatFund database. FloatFund database is where vendor are allowed to make fund claims.
+func (m *DbFloatFund) AddFloat(VID, floatValue string, group *sync.WaitGroup) error {
+	defer group.Done()
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	defer db.Close()
@@ -30,10 +33,19 @@ func (m *DbFloatFund) AddFloat(VID, floatValue string) {
 
 	_, err = db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return errors.New("Something went wrong while trying to record VID into FloatFund database")
 	}
+	return nil
 }
 
-func (m *DbFloatFund) VendorWithdrawal() {
+//VendorWithdrawal - When vendor submitted their VID claims, VendorWithdrawal match the VID and mark with claimed timestamp and merchantID
+//to indicate, fund has been paid to vendor from FloatFund database
+func (m *DbFloatFund) VendorWithdrawal(VID, merchantID string) {
+
+	//Match VID against database
+
+	//if no match found, return error, VID no found match found
+
+	//else perform update database with timestamp and merchantID
 
 }

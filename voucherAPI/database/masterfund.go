@@ -3,12 +3,14 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 //DbMasterFund struct is associated with MasterFund table
@@ -133,7 +135,51 @@ func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 }
 
 //WithdrawMasterFund insert voucher into Masterfund database, it also update the masterfund balance
-func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string) {
+func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string, group *sync.WaitGroup) error {
+	defer group.Done()
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM MasterFund ORDER BY MFund_ID DESC LIMIT 1")
+	if err != nil {
+		return err
+	}
+	for results.Next() {
+		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	//Convert m.BalancedFund and deposit into INT
+	lastBalance, err := strconv.Atoi(m.BalancedFund)
+	newVoucherValue, err := strconv.Atoi(amount)
+
+	//Return sum from adding new deposit with latest balance from database
+	var sum = lastBalance - newVoucherValue
+
+	//convert back to string to be use for
+	newBalanced := strconv.Itoa(sum)
+
+	query := fmt.Sprintf("INSERT INTO MasterFund (TransactionType, SponsorIDOrVID, "+
+		"SponsorNameOrUserID, Amount, BalancedFund) VALUES('%s','%s','%s','%s','%s')",
+		"Withdrawal", VID, userID, amount, newBalanced)
+
+	_, err = db.Query(query)
+	if err != nil {
+		return errors.New("Something went wrong while trying to record VID into MasterFund database")
+	}
+	return nil
+}
+
+func (m *DbMasterFund) CheckMasterFund(amount string) bool {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -157,21 +203,11 @@ func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string) {
 
 	//Convert m.BalancedFund and deposit into INT
 	lastBalance, err := strconv.Atoi(m.BalancedFund)
-	newVoucherValue, err := strconv.Atoi(amount)
+	amountInt, err := strconv.Atoi(amount)
 
-	//Return sum from adding new deposit with latest balance from database
-	var sum = lastBalance - newVoucherValue
-
-	//convert back to string to be use for
-	newBalanced := strconv.Itoa(sum)
-
-	fmt.Println(newBalanced)
-	query := fmt.Sprintf("INSERT INTO MasterFund (TransactionType, SponsorIDOrVID, "+
-		"SponsorNameOrUserID, Amount, BalancedFund) VALUES('%s','%s','%s','%s','%s')",
-		"Withdrawal", VID, userID, amount, newBalanced)
-
-	_, err = db.Query(query)
-	if err != nil {
-		log.Fatal(err)
+	if lastBalance > amountInt {
+		return true
+	} else {
+		return false
 	}
 }

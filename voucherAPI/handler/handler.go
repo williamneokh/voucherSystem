@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	uuid "github.com/satori/go.uuid"
+	"github.com/williamneokh/voucherSystem/models"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"github.com/williamneokh/voucherSystem/voucherAPI/database"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 )
 
 var vip *config.Config
@@ -99,4 +102,80 @@ func AllMasterFundRecords(w http.ResponseWriter, r *http.Request) {
 
 	// returns all the courses in JSON
 
+}
+
+func GetVoucher(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("401 -Invalid key"))
+		return
+	}
+	if r.Header.Get("Content-type") == "application/json" {
+		var mFund database.DbMasterFund
+		if r.Method == "POST" {
+
+			reqBody, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			var gen models.GetVoucher
+
+			json.Unmarshal(reqBody, &gen)
+
+			if gen.UserID == "" || gen.Points == "" || gen.Value == "" {
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				_, _ = w.Write([]byte("422 - Please supply sponsor information in JSON format"))
+				return
+			}
+			//check Masterfund if there is enough fund to generate voucher
+			if !mFund.CheckMasterFund(gen.Value) {
+				w.WriteHeader(http.StatusPaymentRequired)
+				_, _ = w.Write([]byte("402 - insufficient balance in MasterFund"))
+				return
+			}
+
+			//Generate Voucher(VID)
+			u1 := uuid.NewV4()
+			VID := u1.String()
+
+			var wg sync.WaitGroup
+
+			var voucher database.DbVoucher
+			wg.Add(3)
+			//Spawn go routine for recording into Voucher database
+			go func() {
+				err = voucher.InsertVoucher(VID, gen.UserID, gen.Points, gen.Value, &wg)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					_, _ = w.Write([]byte(fmt.Sprintf("500 - InternalServerError: %v", err)))
+				}
+			}()
+
+			//Spawn go routine for recording into MasterFund database and update the fund balance
+			go func() {
+				err = mFund.WithdrawMasterFund(VID, gen.UserID, gen.Value, &wg)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					_, _ = w.Write([]byte(fmt.Sprintf("500 - InternalServerError: %v", err)))
+				}
+			}()
+
+			var fFund database.DbFloatFund
+			//Spawn go routine for recording into FloatFund database
+			go func() {
+				err = fFund.AddFloat(VID, gen.Value, &wg)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					_, _ = w.Write([]byte(fmt.Sprintf("500 - InternalServerError: %v", err)))
+				}
+			}()
+
+			wg.Wait()
+			w.WriteHeader(http.StatusOK)
+			var success models.GetVoucher
+			success = models.GetVoucher{VID, gen.UserID, gen.Points, gen.Value}
+
+			_ = json.NewEncoder(w).Encode(success)
+		}
+	}
 }

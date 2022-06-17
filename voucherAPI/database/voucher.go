@@ -2,8 +2,10 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -18,6 +20,7 @@ type DbVoucher struct {
 	MerchantID   string `json:"MerchantID"`
 }
 
+//RedeemVoucher is when merchant consumed user's voucher.
 func (m *DbVoucher) RedeemVoucher(VID, merchant string) {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
@@ -37,11 +40,13 @@ func (m *DbVoucher) RedeemVoucher(VID, merchant string) {
 	}
 }
 
-func (m *DbVoucher) InsertVoucher(VID, userID, userPoints, voucherValue string) {
+//InsertVoucher is when user making a trade of their points for voucher
+func (m *DbVoucher) InsertVoucher(VID, userID, userPoints, voucherValue string, group *sync.WaitGroup) error {
+	defer group.Done()
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	defer db.Close()
@@ -52,10 +57,13 @@ func (m *DbVoucher) InsertVoucher(VID, userID, userPoints, voucherValue string) 
 
 	_, err = db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return errors.New("Something went wrong while trying to record VID into Voucher database")
 	}
+	return nil
+
 }
 
+//CheckDuplicatedVID check if the VID is duplicated in Voucher database
 func (m *DbVoucher) CheckDuplicatedVID(vid string) bool {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
