@@ -26,6 +26,7 @@ func main() {
 	router.HandleFunc("/api", handler.Home)
 	router.HandleFunc("/api/sponsor/{sponsorid}", handler.Sponsor).Methods("POST")
 	router.HandleFunc("/api/masterfund", handler.AllMasterFundRecords).Methods("POST")
+	router.HandleFunc("/api/getvoucher", handler.TestingGround).Methods("POST")
 
 	fmt.Println("Listening at port" + portNumber)
 

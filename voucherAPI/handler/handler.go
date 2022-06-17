@@ -77,7 +77,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			newSponsor.InsertFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
+			newSponsor.DepositMasterFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
 			w.WriteHeader(http.StatusCreated)
 			_, _ = w.Write([]byte("201 - Funds added: " + params["sponsorid"]))
 		}
@@ -95,7 +95,7 @@ func AllMasterFundRecords(w http.ResponseWriter, r *http.Request) {
 
 	var MasterFund database.DbMasterFund
 
-	MasterFund.ListTransactionRecords(w)
+	MasterFund.ListMasterFundRecords(w)
 
 	// returns all the courses in JSON
 

@@ -32,8 +32,8 @@ func ViperDatabase(a *config.Config) {
 	vip = a
 }
 
-//InsertFund function create new incoming sponsorship fund into the mySql table MasterFund and update new balance
-func (m *DbMasterFund) InsertFund(sponsorID, sponsorName, amount string) {
+//DepositMasterFund function create new incoming sponsorship fund into the mySql table MasterFund and update new balance
+func (m *DbMasterFund) DepositMasterFund(sponsorID, sponsorName, amount string) {
 
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
@@ -106,8 +106,8 @@ func (m *DbMasterFund) CheckSponsorIDorVID(id string) bool {
 	return false
 }
 
-//ListTransactionRecords function returned all records of MasterFund from database into JSON Format
-func (m *DbMasterFund) ListTransactionRecords(w http.ResponseWriter) {
+//ListMasterFundRecords function returned all records of MasterFund from database into JSON Format
+func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -132,8 +132,8 @@ func (m *DbMasterFund) ListTransactionRecords(w http.ResponseWriter) {
 	}
 }
 
-//InsertVoucher insert voucher into Masterfund database, it also update the masterfund balance
-func (m *DbMasterFund) InsertVoucher(VID, userID, amount string) {
+//WithdrawMasterFund insert voucher into Masterfund database, it also update the masterfund balance
+func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string) {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -157,10 +157,10 @@ func (m *DbMasterFund) InsertVoucher(VID, userID, amount string) {
 
 	//Convert m.BalancedFund and deposit into INT
 	lastBalance, err := strconv.Atoi(m.BalancedFund)
-	newDeposit, err := strconv.Atoi(amount)
+	newVoucherValue, err := strconv.Atoi(amount)
 
 	//Return sum from adding new deposit with latest balance from database
-	var sum = lastBalance - newDeposit
+	var sum = lastBalance - newVoucherValue
 
 	//convert back to string to be use for
 	newBalanced := strconv.Itoa(sum)
