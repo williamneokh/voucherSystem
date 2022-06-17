@@ -3,16 +3,16 @@
 ### Adding Sponsored Fund
 Method: "POST"
 
-localhost:3000/api/sponsor/{sponsorID}?key={API_TOKEN inside env file}
+localhost:3000/api/sponsor/{sponsorID}
 
 example JSON Return
 
-{"TransactionType":"Deposit","SponsorNameOrUserID":"Seng Siong","Amount":"2000"}
+{"SponsorNameOrUserID":"Seng Siong","Amount":"2000"}
 
 ### List Deposit/Withdrawal from MasterFund table
 Method: "POST"
 
-localhost:3000/api/masterfund?key={API_TOKEN inside env file}
+localhost:3000/api/masterfund
 
 example JSON Return
 

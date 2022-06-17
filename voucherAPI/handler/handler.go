@@ -19,23 +19,22 @@ func ViperHandler(a *config.Config) {
 
 //ValidKey check if client key matches api key
 func ValidKey(r *http.Request) bool {
+	v := r.Header.Get("Key")
 
-	v := r.URL.Query()
-	if key, ok := v["key"]; ok {
-		if key[0] == vip.ApiToken {
-			return true
-		} else {
-			return false
-		}
+	if v == vip.ApiToken {
+		return true
 	} else {
 		return false
 	}
+
 }
 
+//Home just a return a message if you are connected to the api
 func Home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "You are connected to Voucher System API")
 }
 
+//Sponsor allow administrator to add sponsor fund into MasterFund table
 func Sponsor(w http.ResponseWriter, r *http.Request) {
 	if !ValidKey(r) {
 		w.WriteHeader(http.StatusNotFound)
@@ -58,18 +57,12 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 			json.Unmarshal(reqBody, &newSponsor)
 
 			//check for any empty field
-			if newSponsor.TransactionType == "" || params["sponsorid"] == "" || newSponsor.SponsorNameOrUserID == "" || newSponsor.Amount == "" {
+			if params["sponsorid"] == "" || newSponsor.SponsorNameOrUserID == "" || newSponsor.Amount == "" {
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				_, _ = w.Write([]byte("422 - Please supply sponsor information in JSON format"))
 				return
 			}
 
-			//check for any wrong type of data
-			if newSponsor.TransactionType != "Deposit" {
-				w.WriteHeader(http.StatusNotAcceptable)
-				_, _ = w.Write([]byte("406 - Transaction type for sponsor funding must be name exactly \"Deposit\""))
-				return
-			}
 			//check if the characters use has been exceeded the database size
 			if len(params["sponsorid"]) > 8 {
 				w.WriteHeader(http.StatusNotAcceptable)
@@ -80,17 +73,19 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 			if newSponsor.CheckSponsorIDorVID(params["sponsorid"]) {
 
 				w.WriteHeader(http.StatusNotAcceptable)
-				_, _ = w.Write([]byte("406 - The Sponsor ID or VID has been used, please create new sponser ID or Voucher."))
+				_, _ = w.Write([]byte("406 - The Sponsor ID or VID has been used, please create new sponsor ID or Voucher."))
 				return
 			}
 
-			newSponsor.InsertFund(newSponsor.TransactionType, params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
+			newSponsor.InsertFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
 			w.WriteHeader(http.StatusCreated)
 			_, _ = w.Write([]byte("201 - Funds added: " + params["sponsorid"]))
 		}
 
 	}
 }
+
+//AllMasterFundRecords allow administrator to list all the date in Masterfund table
 func AllMasterFundRecords(w http.ResponseWriter, r *http.Request) {
 	if !ValidKey(r) {
 		w.WriteHeader(http.StatusNotFound)
