@@ -179,3 +179,50 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func ConsumeVID(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte("401 -Invalid key"))
+		return
+	}
+	if r.Method == "POST" {
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var con models.ConsumeVID
+
+		json.Unmarshal(reqBody, &con)
+		if con.VID == "" || con.UserID == "" || con.MerchantID == "" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			_, _ = w.Write([]byte("422 - Please supply sponsor information in JSON format"))
+			return
+		}
+
+		var voucher database.DbVoucher
+		err = voucher.ValidateVoucher(con.VID, con.UserID)
+
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte(fmt.Sprintf("%s", err)))
+
+		}
+		err = voucher.RedeemVoucher(con.VID, con.MerchantID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(fmt.Sprintf("%s", err)))
+		}
+		w.WriteHeader(http.StatusAccepted)
+		//_, _ = w.Write([]byte(fmt.Sprintf("202 - Successfuly consumed\nVID: %s\nFor user: %s\nTo Merchant: %s\n", con.VID, con.UserID, con.MerchantID)))
+		successMsg := models.ConsumeVID{
+			Status:     "202",
+			Message:    "Successfully Consumed",
+			VID:        con.VID,
+			UserID:     con.UserID,
+			MerchantID: con.MerchantID,
+		}
+		_ = json.NewEncoder(w).Encode(successMsg)
+	}
+}

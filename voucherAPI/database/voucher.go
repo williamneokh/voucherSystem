@@ -21,7 +21,7 @@ type DbVoucher struct {
 }
 
 //RedeemVoucher is when merchant consumed user's voucher.
-func (m *DbVoucher) RedeemVoucher(VID, merchant string) {
+func (m *DbVoucher) RedeemVoucher(VID, merchant string) error {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -35,9 +35,10 @@ func (m *DbVoucher) RedeemVoucher(VID, merchant string) {
 
 	_, err = db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return err
 
 	}
+	return nil
 }
 
 //InsertVoucher is when user making a trade of their points for voucher
@@ -89,4 +90,50 @@ func (m *DbVoucher) CheckDuplicatedVID(vid string) bool {
 		}
 	}
 	return false
+}
+
+//ValidateVoucher to check the authenticity of a voucher
+func (m *DbVoucher) ValidateVoucher(vid, userId string) error {
+
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	results, err := db.Query("SELECT * FROM Voucher Where VID = ?", vid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(vid, userId)
+	i := 0
+	for results.Next() {
+		i++
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+
+	//check user's voucher is available in database
+	if i == 0 {
+		return errors.New("Voucher cannot be found in database")
+	} else {
+		//check user is it the rightful owner of the voucher
+		if m.UserID != userId {
+			return errors.New("UserID doesnt match the correct user in the database")
+		} else {
+			//check if the voucher has be use before
+			if m.MerchantID == "OPEN" {
+				//fmt.Println("Valid unused voucher")
+			} else {
+				return errors.New("voucher has been used")
+			}
+		}
+
+	}
+	return nil
 }

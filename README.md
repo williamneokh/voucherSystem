@@ -5,7 +5,7 @@ Method: "POST"
 
 localhost:3000/api/sponsor/{sponsorID}
 
-example JSON INPUT
+example JSON Input
 
 {
 "SponsorNameOrUserID":"Seng Siong",
@@ -30,7 +30,7 @@ Method: "POST"
 
 localhost:3000/api/getvoucher
 
-example JSON INPUT
+example JSON Input
 
 {
 "UserID":"User001",
@@ -41,3 +41,26 @@ example JSON INPUT
 example JSON Return
 
 {"VID":"4c04afc3-309e-4016-a753-c031d0e686af","UserID":"User001","Points":"1000","Value":"5"}
+
+### Vendor Consume Voucher
+Method: "POST"
+
+localhost:3000:/api/consumevid
+
+example JSON Input
+
+{
+"VID":"9f38ffcb-ec90-4f20-87cb-1d3566b16392",
+"UserID":"User001",
+"MerchantID":"ertertert"
+}
+
+example JSON Return
+
+{
+"Status": "202",
+"Message": "Successfully Consumed",
+"VID": "9f38ffcb-ec90-4f20-87cb-1d3566b16392",
+"UserID": "User001",
+"MerchantID": "ertertert"
+}
