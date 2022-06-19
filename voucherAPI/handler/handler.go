@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -60,18 +61,41 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 			json.Unmarshal(reqBody, &newSponsor)
 
 			//check for any empty field
-			if params["sponsorid"] == "" || newSponsor.SponsorNameOrUserID == "" || newSponsor.Amount == "" {
+			if newSponsor.SponsorNameOrUserID == "" || newSponsor.Amount == "" {
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				_, _ = w.Write([]byte("422 - Please supply sponsor information in JSON format"))
 				return
 			}
 
-			//check if the characters use has been exceeded the database size
+			//check sponsor id if it exceeded database allowable characters of 8
 			if len(params["sponsorid"]) > 8 {
 				w.WriteHeader(http.StatusNotAcceptable)
-				_, _ = w.Write([]byte("406 - The characters cannot be more than 8."))
+				_, _ = w.Write([]byte("406 - The characters for sponsor id cannot be more than 8."))
+
 				return
 			}
+			//check sponsor name if it exceeded database allowable characters of 36
+			if len(newSponsor.SponsorNameOrUserID) > 36 {
+				w.WriteHeader(http.StatusNotAcceptable)
+				_, _ = w.Write([]byte("406 - The characters for sponsor name cannot be more than 36."))
+				return
+			}
+			//Make sure sponsor amount is a valid integer
+			_, err = strconv.Atoi(newSponsor.Amount)
+			if err != nil {
+				w.WriteHeader(http.StatusNotAcceptable)
+				_, _ = w.Write([]byte(fmt.Sprintf("406 - Expecting integer only but got: %v.", newSponsor.Amount)))
+				return
+			}
+
+			//check sponsor amount if it exceeded database allowable characters of 7
+			if len(newSponsor.Amount) > 8 {
+				fmt.Println(len(newSponsor.Amount))
+				w.WriteHeader(http.StatusNotAcceptable)
+				_, _ = w.Write([]byte("406 - The characters for sponsor amount cannot be more than 8."))
+				return
+			}
+
 			//check if the sponsorID has been use.
 			if newSponsor.CheckSponsorIDorVID(params["sponsorid"]) {
 
@@ -122,12 +146,13 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 
 			json.Unmarshal(reqBody, &gen)
 
+			//Validation check if field are empty
 			if gen.UserID == "" || gen.Points == "" || gen.Value == "" {
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				_, _ = w.Write([]byte("422 - Please supply sponsor information in JSON format"))
 				return
 			}
-			//check Masterfund if there is enough fund to generate voucher
+			//Validation check if there are enough fund to generate new voucher
 			if !mFund.CheckMasterFund(gen.Value) {
 				w.WriteHeader(http.StatusPaymentRequired)
 				_, _ = w.Write([]byte("402 - insufficient balance in MasterFund"))
@@ -215,7 +240,7 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			_, _ = w.Write([]byte(fmt.Sprintf("%s", err)))
 		}
 		w.WriteHeader(http.StatusAccepted)
-		//_, _ = w.Write([]byte(fmt.Sprintf("202 - Successfuly consumed\nVID: %s\nFor user: %s\nTo Merchant: %s\n", con.VID, con.UserID, con.MerchantID)))
+
 		successMsg := models.ConsumeVID{
 			Status:     "202",
 			Message:    "Successfully Consumed",
