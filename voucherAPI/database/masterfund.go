@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/williamneokh/voucherSystem/models"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"log"
 	"net/http"
@@ -123,13 +124,21 @@ func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 		log.Fatal(err)
 	}
 	var newRecord DbMasterFund
+	var count int
 	for results.Next() {
+		count++
 		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
 		if err != nil {
 			log.Fatal(err)
 		}
 		newRecord = DbMasterFund{m.Mfund_ID, m.TransactionType, m.SponsorIDOrVID, m.SponsorNameOrUserID, m.TransactionDate, m.Amount, m.BalancedFund}
-		_ = json.NewEncoder(w).Encode(newRecord)
+		successMsg := models.ReturnMessage{
+			true,
+			fmt.Sprintf("[MS-VOUCHERS]: Result: %d", count),
+			newRecord,
+		}
+
+		_ = json.NewEncoder(w).Encode(successMsg)
 
 	}
 }

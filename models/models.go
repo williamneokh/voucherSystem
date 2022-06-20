@@ -8,9 +8,14 @@ type GetVoucher struct {
 }
 
 type ConsumeVID struct {
-	Status     string `json:"Status"`
-	Message    string `json:"Message"`
 	VID        string `json:"VID"`
 	UserID     string `json:"UserID"`
 	MerchantID string `json:"MerchantID"`
+}
+
+type ReturnMessage struct {
+	Ok   bool   `json:"ok"`
+	Msg  string `json:"msg"`
+	Data interface {
+	} `json:"data"`
 }

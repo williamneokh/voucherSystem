@@ -12,6 +12,13 @@ example JSON Input
 "Amount":"2000"
 }
 
+example JSON Return
+{
+"ok": true,
+"msg": "[MS-VOUCHERS]: Sponsor fund deposit, successful",
+"data": "Code: ss008"
+}
+
 
 ### List Deposit/Withdrawal from MasterFund table
 Method: "POST"
@@ -20,10 +27,32 @@ localhost:3000/api/masterfund
 
 example JSON Return
 
-{"Mfund_ID":24,"TransactionType":"Deposit","SponsorIDOrVID":"NTUC01","SponsorNameOrUserID":"NTUC","TransactionDate":"2022-06-16 16:58:10","Amount":"1000","BalancedFund":"1000"}
-{"Mfund_ID":25,"TransactionType":"Deposit","SponsorIDOrVID":"SS01","SponsorNameOrUserID":"Seng Siong","TransactionDate":"2022-06-16 16:58:52","Amount":"2000","BalancedFund":"3000"}
-{"Mfund_ID":26,"TransactionType":"Deposit","SponsorIDOrVID":"SS02","SponsorNameOrUserID":"Seng Siong","TransactionDate":"2022-06-16 21:18:34","Amount":"2000","BalancedFund":"5000"}
-
+{
+"ok": true,
+"msg": "[MS-VOUCHERS]: Result: 1",
+"data": {
+"Mfund_ID": 1,
+"TransactionType": "Deposit",
+"SponsorIDOrVID": "SS13",
+"SponsorNameOrUserID": "Seng Siong",
+"TransactionDate": "2022-06-19 22:12:06",
+"Amount": "12345678",
+"BalancedFund": "12345678"
+}
+}
+{
+"ok": true,
+"msg": "[MS-VOUCHERS]: Result: 2",
+"data": {
+"Mfund_ID": 2,
+"TransactionType": "Deposit",
+"SponsorIDOrVID": "d",
+"SponsorNameOrUserID": "Seng Siong",
+"TransactionDate": "2022-06-19 22:14:11",
+"Amount": "12345678",
+"BalancedFund": "24691356"
+}
+}
 
 ### User exchange Voucher
 Method: "POST"
@@ -40,7 +69,16 @@ example JSON Input
 
 example JSON Return
 
-{"VID":"4c04afc3-309e-4016-a753-c031d0e686af","UserID":"User001","Points":"1000","Value":"5"}
+{
+"ok": true,
+"msg": "[MS-VOUCHERS]: Generate new voucher, successful",
+"data": {
+"VID": "66961331-4c68-40bb-9d2c-e71823762dc5",
+"UserID": "User001",
+"Points": "1000",
+"Value": "5"
+}
+}
 
 ### Vendor Consume Voucher
 Method: "POST"
@@ -50,7 +88,7 @@ localhost:3000:/api/consumevid
 example JSON Input
 
 {
-"VID":"9f38ffcb-ec90-4f20-87cb-1d3566b16392",
+"VID":"4569790e-cdef-4603-a913-6340b7d32e99",
 "UserID":"User001",
 "MerchantID":"ertertert"
 }
@@ -58,9 +96,11 @@ example JSON Input
 example JSON Return
 
 {
-"Status": "202",
-"Message": "Successfully Consumed",
-"VID": "9f38ffcb-ec90-4f20-87cb-1d3566b16392",
+"ok": true,
+"msg": "[MS-VOUCHERS]: Consume voucher, successful",
+"data": {
+"VID": "4569790e-cdef-4603-a913-6340b7d32e99",
 "UserID": "User001",
 "MerchantID": "ertertert"
+}
 }
