@@ -18,10 +18,11 @@ type DbVoucher struct {
 	VoucherValue string `json:"VoucherValue"`
 	RedeemedDate string `json:"RedeemedDate"`
 	MerchantID   string `json:"MerchantID"`
+	Branch       string `json:"Branch"`
 }
 
 //RedeemVoucher is when merchant consumed user's voucher.
-func (m *DbVoucher) RedeemVoucher(VID, merchant string) error {
+func (m *DbVoucher) RedeemVoucher(VID, merchant, branch string) error {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -31,7 +32,7 @@ func (m *DbVoucher) RedeemVoucher(VID, merchant string) error {
 	defer db.Close()
 	now := time.Now()
 
-	query := fmt.Sprintf("UPDATE Voucher SET RedeemedDate='%s', MerchantID='%s' WHERE VID='%s'", now.Format("2006-01-02 15:04:05"), merchant, VID)
+	query := fmt.Sprintf("UPDATE Voucher SET RedeemedDate='%s', MerchantID='%s', Branch='%s' WHERE VID='%s'", now.Format("2006-01-02 15:04:05"), merchant, branch, VID)
 
 	_, err = db.Query(query)
 	if err != nil {
@@ -52,9 +53,8 @@ func (m *DbVoucher) InsertVoucher(VID, userID, userPoints, voucherValue string, 
 
 	defer db.Close()
 
-	query := fmt.Sprintf("INSERT INTO Voucher (VID, UserID, UserPoints, VoucherValue,"+
-		"RedeemedDate, MerchantID) VALUES('%s','%s','%s','%s','%s','%s')",
-		VID, userID, userPoints, voucherValue, "2000-01-01 00:00:00", "OPEN")
+	query := fmt.Sprintf("INSERT INTO Voucher (VID, UserID, UserPoints, VoucherValue, RedeemedDate, MerchantID, Branch) VALUES('%s','%s','%s','%s','%s','%s','%s')",
+		VID, userID, userPoints, voucherValue, "2000-01-01 00:00:00", "OPEN", "OPEN")
 
 	_, err = db.Query(query)
 	if err != nil {
@@ -79,7 +79,7 @@ func (m *DbVoucher) CheckDuplicatedVID(vid string) bool {
 		log.Fatal(err)
 	}
 	for results.Next() {
-		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID)
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -111,7 +111,7 @@ func (m *DbVoucher) ValidateVoucher(vid, userId string) error {
 	i := 0
 	for results.Next() {
 		i++
-		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID)
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
 		if err != nil {
 			log.Fatal(err)
 		}

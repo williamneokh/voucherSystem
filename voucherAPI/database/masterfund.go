@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/williamneokh/voucherSystem/models"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
+	"github.com/williamneokh/voucherSystem/voucherAPI/models"
 	"log"
 	"net/http"
 	"strconv"
@@ -219,4 +219,28 @@ func (m *DbMasterFund) CheckMasterFund(amount string) bool {
 	} else {
 		return false
 	}
+}
+
+func (m *DbMasterFund) FindLatestBalance() string {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	results, err := db.Query("SELECT * FROM MasterFund ORDER BY MFund_ID DESC LIMIT 1")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for results.Next() {
+		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+	return m.BalancedFund
+
 }

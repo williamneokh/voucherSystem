@@ -11,6 +11,7 @@ type ConsumeVID struct {
 	VID        string `json:"VID"`
 	UserID     string `json:"UserID"`
 	MerchantID string `json:"MerchantID"`
+	Branch     string `json:"Branch"`
 }
 
 type ReturnMessage struct {
@@ -18,4 +19,12 @@ type ReturnMessage struct {
 	Msg  string `json:"msg"`
 	Data interface {
 	} `json:"data"`
+}
+
+type LastBalance struct {
+	Balance string `json:"Balance"`
+}
+
+type ClaimedFloatFund struct {
+	VID string `json:"VID"`
 }

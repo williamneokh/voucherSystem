@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
-	"github.com/williamneokh/voucherSystem/models"
 	"github.com/williamneokh/voucherSystem/voucherAPI/config"
 	"github.com/williamneokh/voucherSystem/voucherAPI/database"
+	"github.com/williamneokh/voucherSystem/voucherAPI/models"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -311,7 +311,7 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 		var con models.ConsumeVID
 
 		_ = json.Unmarshal(reqBody, &con)
-		if con.VID == "" || con.UserID == "" || con.MerchantID == "" {
+		if con.VID == "" || con.UserID == "" || con.MerchantID == "" || con.Branch == "" {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
@@ -337,7 +337,7 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			return
 
 		}
-		err = voucher.RedeemVoucher(con.VID, con.MerchantID)
+		err = voucher.RedeemVoucher(con.VID, con.MerchantID, con.Branch)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			unsuccessfulMsg := models.ReturnMessage{
@@ -356,6 +356,7 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 				VID:        con.VID,
 				UserID:     con.UserID,
 				MerchantID: con.MerchantID,
+				Branch:     con.Branch,
 			}
 			successMsg := models.ReturnMessage{
 				true,
@@ -366,4 +367,88 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func FundBalance(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		unsuccessfulMsg := models.ReturnMessage{
+			false,
+			"[MS-VOUCHERS]: Invalid key API_TOKEN",
+			"",
+		}
+		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
+		return
+	}
+
+	var bal database.DbMasterFund
+
+	latestBalance := bal.FindLatestBalance()
+	data := models.LastBalance{Balance: latestBalance}
+
+	successMsg := models.ReturnMessage{
+		true,
+		"[MS-VOUCHERS]: Pull latest fund balance, successful",
+		data,
+	}
+	_ = json.NewEncoder(w).Encode(successMsg)
+	return
+
+}
+
+func MerchantClaims(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		unsuccessfulMsg := models.ReturnMessage{
+			false,
+			"[MS-VOUCHERS]: Invalid key API_TOKEN",
+			"",
+		}
+		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
+		return
+	}
+	if r.Method == "POST" {
+
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var wd database.DbFloatFund
+		_ = json.Unmarshal(reqBody, &wd)
+
+		//Validation check if field are empty
+		if wd.VID == "" || wd.MerchantID == "" || wd.Branch == "" {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			unsuccessfulMsg := models.ReturnMessage{
+				false,
+				"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
+				"",
+			}
+			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
+			return
+		}
+		err = wd.VendorWithdrawal(wd.VID, wd.MerchantID, wd.Branch)
+		if err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			unsuccessfulMsg := models.ReturnMessage{
+				false,
+				fmt.Sprintf("MS-VOUCHERS]: %v", err),
+				"",
+			}
+			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
+			return
+		}
+
+		data := models.ClaimedFloatFund{
+			VID: wd.VID,
+		}
+		successMsg := models.ReturnMessage{
+			true,
+			"[MS-VOUCHERS]: Voucher Claim, successful",
+			data,
+		}
+		_ = json.NewEncoder(w).Encode(successMsg)
+		return
+	}
+
 }
