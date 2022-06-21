@@ -1,3 +1,0 @@
-"Source": "/var/lib/docker/volumes/805580ec30d795d9635b8bbdaa905f6e28aa992016293474ebb30b3a8f5f55e4/_data",
-                "Destination": "/var/lib/mysql"
-

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/williamneokh/voucherSystem/voucherAPI/handler"
+	"github.com/williamneokh/voucherSystem/handler"
 	"net/http"
 )
 
