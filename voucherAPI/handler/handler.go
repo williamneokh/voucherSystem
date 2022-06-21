@@ -417,7 +417,7 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 		_ = json.Unmarshal(reqBody, &wd)
 
 		//Validation check if field are empty
-		if wd.VID == "" || wd.MerchantID == "" || wd.Branch == "" {
+		if wd.VID == "" || wd.Branch == "" {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
@@ -427,7 +427,8 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			return
 		}
-		err = wd.VendorWithdrawal(wd.VID, wd.MerchantID, wd.Branch)
+		var holdMerchantID = wd.Branch
+		err = wd.VendorWithdrawal(wd.VID, wd.Branch)
 		if err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			unsuccessfulMsg := models.ReturnMessage{
@@ -442,9 +443,10 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 		data := models.ClaimedFloatFund{
 			VID: wd.VID,
 		}
+
 		successMsg := models.ReturnMessage{
 			true,
-			"[MS-VOUCHERS]: Voucher Claim, successful",
+			fmt.Sprintf("[MS-VOUCHERS]: Successfully claim, fund has been credited to %v's bank", holdMerchantID),
 			data,
 		}
 		_ = json.NewEncoder(w).Encode(successMsg)

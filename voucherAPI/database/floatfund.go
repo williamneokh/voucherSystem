@@ -16,7 +16,6 @@ type DbFloatFund struct {
 	FloatValue      string `json:"FloatValue"`
 	WithdrawalDate  string `json:"WithdrawalDate"`
 	WithdrawalValue string `json:"WithdrawalValue"`
-	MerchantID      string `json:"MerchantID"`
 	Branch          string `json:"Branch"`
 }
 
@@ -31,8 +30,8 @@ func (m *DbFloatFund) AddFloat(VID, floatValue string, group *sync.WaitGroup) er
 
 	defer db.Close()
 
-	query := fmt.Sprintf("INSERT INTO FloatFund (VID, FloatValue, WithdrawalDate, MerchantID, Branch) VALUES('%s','%s','%s','%s','%s')",
-		VID, floatValue, "2000-01-01 00:00:00", "OPEN", "OPEN")
+	query := fmt.Sprintf("INSERT INTO FloatFund (VID, FloatValue, WithdrawalDate, Branch) VALUES('%s','%s','%s','%s')",
+		VID, floatValue, "2000-01-01 00:00:00", "OPEN")
 
 	_, err = db.Query(query)
 	if err != nil {
@@ -43,7 +42,7 @@ func (m *DbFloatFund) AddFloat(VID, floatValue string, group *sync.WaitGroup) er
 
 //VendorWithdrawal - When vendor submitted their VID claims, VendorWithdrawal match the VID and mark with claimed timestamp and merchantID
 //to indicate, fund has been paid to vendor from FloatFund database
-func (m *DbFloatFund) VendorWithdrawal(VID, merchantID, branch string) error {
+func (m *DbFloatFund) VendorWithdrawal(VID, branch string) error {
 
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
@@ -60,7 +59,7 @@ func (m *DbFloatFund) VendorWithdrawal(VID, merchantID, branch string) error {
 	var count int
 	for results.Next() {
 		count++
-		err = results.Scan(&m.FFund_ID, &m.VID, &m.FloatDate, &m.FloatValue, &m.WithdrawalDate, &m.MerchantID, &m.Branch)
+		err = results.Scan(&m.FFund_ID, &m.VID, &m.FloatDate, &m.FloatValue, &m.WithdrawalDate, &m.Branch)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -70,14 +69,14 @@ func (m *DbFloatFund) VendorWithdrawal(VID, merchantID, branch string) error {
 	}
 
 	//Validation check if Voucher already been claimed
-	if m.MerchantID != "OPEN" {
-		return errors.New(fmt.Sprintf("voucher has been claimed before on: %v - by merchant ID: %v", m.WithdrawalDate, m.MerchantID))
+	if m.Branch != "OPEN" {
+		return errors.New(fmt.Sprintf("voucher has been claimed before on: %v - by merchant ID: %v", m.WithdrawalDate, m.Branch))
 	}
 
 	//perform update database with timestamp and merchantID
 	now := time.Now()
 
-	query := fmt.Sprintf("UPDATE FloatFund SET WithdrawalDate='%s', MerchantID='%s', Branch='%s' WHERE VID='%s'", now.Format("2006-01-02 15:04:05"), merchantID, branch, VID)
+	query := fmt.Sprintf("UPDATE FloatFund SET WithdrawalDate='%s', Branch='%s' WHERE VID='%s'", now.Format("2006-01-02 15:04:05"), branch, VID)
 
 	_, err = db.Query(query)
 	if err != nil {

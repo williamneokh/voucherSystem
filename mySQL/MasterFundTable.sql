@@ -14,7 +14,8 @@ UserPoints varchar(10),
 CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
 VoucherValue varchar(3),
 RedeemedDate DATETIME,
-MerchantID varchar (50)
+MerchantID varchar (50),
+Branch varchar(50)
 );
 
 CREATE TABLE MasterFund (
@@ -24,7 +25,7 @@ TransactionType varchar(10),
 SponsorIDOrVID varchar(36),
 SponsorNameOrUserID varchar(30),
 TransactionDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-Amount varchar(7),
+Amount varchar(8),
 BalancedFund varchar(8)
 );
 
@@ -35,6 +36,6 @@ VID varchar (36),
 FloatDate DATETIME DEFAULT CURRENT_TIMESTAMP,
 FloatValue varchar(8),
 WithdrawalDate DATETIME,
-MerchantID varchar(50)
+Branch varchar(50)
 );
 
