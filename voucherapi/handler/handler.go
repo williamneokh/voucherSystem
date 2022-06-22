@@ -234,6 +234,11 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 
 			var isRecordedDatabase = true
 
+			//add 3 var to check the outcome of each go routine
+			var isSuccessMasterFund = true
+			var isSuccessVoucher = true
+			var isSuccessFloatFund = true
+
 			var wg sync.WaitGroup
 
 			var voucher database.DbVoucher
@@ -250,6 +255,7 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 					}
 					_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 					isRecordedDatabase = false
+					isSuccessVoucher = false
 				}
 			}()
 
@@ -265,6 +271,8 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 					}
 					_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 					isRecordedDatabase = false
+					isSuccessMasterFund = false
+
 				}
 			}()
 
@@ -281,6 +289,7 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 					}
 					_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 					isRecordedDatabase = false
+					isSuccessFloatFund = false
 				}
 			}()
 
@@ -297,6 +306,50 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 
 				_ = json.NewEncoder(w).Encode(successMsg)
 				return
+			} else {
+
+				//roll back MasterFund with go routine
+				if isSuccessMasterFund == true {
+					wg.Add(1)
+					go func() {
+						err = mFund.RemoveMasterFund(VID, &wg)
+						if err != nil {
+							log.Println(err)
+						}
+						fmt.Printf("Successfully row back SponsorIDorVID: %s from MasterFund database\n", VID)
+						return
+					}()
+
+				}
+
+				//roll back Voucher with go routine
+				if isSuccessVoucher == true {
+					wg.Add(1)
+					go func() {
+						err = voucher.RemoveVoucher(VID, &wg)
+						if err != nil {
+							log.Println(err)
+						}
+						fmt.Printf("Successfully row back VID: %s from Voucher database\n", VID)
+						return
+					}()
+
+				}
+
+				//roll back FloatFund with go routine
+				if isSuccessFloatFund == true {
+					wg.Add(1)
+					go func() {
+						err = fFund.RemoveFloatFund(VID, &wg)
+						if err != nil {
+							log.Println(err)
+						}
+						fmt.Printf("Successfully row back VID: %s from FloatFund database\n", VID)
+						return
+					}()
+
+				}
+				wg.Wait()
 			}
 		}
 	}

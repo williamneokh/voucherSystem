@@ -64,6 +64,26 @@ func (m *DbVoucher) InsertVoucher(VID, userID, userPoints, voucherValue string, 
 
 }
 
+//RemoveVoucher to remove voucher record
+
+func (m DbVoucher) RemoveVoucher(VID string, group *sync.WaitGroup) error {
+	defer group.Done()
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	query := fmt.Sprintf("DELETE FROM Voucher where VID ='%s'", VID)
+	_, err = db.Query(query)
+	if err != nil {
+		return errors.New(fmt.Sprintf("unable to remove VID: %s from database", VID))
+	}
+	return nil
+}
+
 //CheckDuplicatedVID check if the VID is duplicated in Voucher database
 func (m *DbVoucher) CheckDuplicatedVID(vid string) bool {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)

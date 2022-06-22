@@ -188,6 +188,24 @@ func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string, group *syn
 	return nil
 }
 
+//RemoveMasterFund - delete record from database
+func (m *DbMasterFund) RemoveMasterFund(VID string, group *sync.WaitGroup) error {
+	defer group.Done()
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("DELETE FROM MasterFund where SponsorIDOrVID='%s'", VID)
+
+	_, err = db.Query(query)
+	if err != nil {
+		return errors.New(fmt.Sprintf("unable to remove voucher ID: %s from MasterFund database", VID))
+	}
+	return nil
+}
+
 func (m *DbMasterFund) CheckMasterFund(amount string) bool {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 

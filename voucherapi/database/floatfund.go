@@ -40,6 +40,24 @@ func (m *DbFloatFund) AddFloat(VID, floatValue string, group *sync.WaitGroup) er
 	return nil
 }
 
+//RemoveFloatFund delete FloatFund record
+func (m *DbFloatFund) RemoveFloatFund(VID string, group *sync.WaitGroup) error {
+	defer group.Done()
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("DELETE FROM FloatFund WHERE VID='%s'", VID)
+
+	_, err = db.Query(query)
+	if err != nil {
+		return errors.New(fmt.Sprintf("unable to delete VID: %s from floatfund database", VID))
+	}
+	return nil
+}
+
 //VendorWithdrawal - When vendor submitted their VID claims, VendorWithdrawal match the VID and mark with claimed timestamp and merchantID
 //to indicate, fund has been paid to vendor from FloatFund database
 func (m *DbFloatFund) VendorWithdrawal(VID, branch string) error {
