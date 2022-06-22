@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    build:
+      context: ./mySQL
+      dockerfile: Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DB=voucher_system_db
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      - DB_SOURCE=root:password@tcp(mysql:3306)/voucher_system_db
+
+    entrypoint: ["/app/wait-for.sh", "mysql:3306", "--"]
+
+    command: ["/app/main"]
+

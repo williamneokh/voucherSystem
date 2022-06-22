@@ -18,6 +18,7 @@ import (
 var vip *config.Config
 
 func ViperHandler(a *config.Config) {
+
 	vip = a
 }
 
@@ -35,6 +36,16 @@ func ValidKey(r *http.Request) bool {
 
 //Home just a return a message if you are connected to the api
 func Home(w http.ResponseWriter, r *http.Request) {
+	if !ValidKey(r) {
+		w.WriteHeader(http.StatusNotFound)
+		unsuccessfulMsg := models.ReturnMessage{
+			false,
+			"[MS-VOUCHERS]: Invalid key API_TOKEN",
+			"",
+		}
+		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
+		return
+	}
 	_, _ = fmt.Fprintf(w, "You are connected to Voucher System API")
 }
 
