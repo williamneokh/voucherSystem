@@ -1,0 +1,86 @@
+{{template "base" .}}
+
+{{define "content"}}
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Admin Dashboard</h1>
+            <h5 class="h5">Fund Balance: {{index .StringMap "balance"}}</h5>
+        </div>
+
+
+        <div class="container">
+            <div class="col">
+            <h2>Recent Create Voucher</h2><br>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+
+                    <th>Voucher VID</th>
+                    <th>Created On</th>
+                    <th>Value</th>
+
+
+                </tr>
+                </thead>
+                <tbody>
+
+                {{$res := index .Data "voucher"}}
+
+                {{range $res}}
+
+                    <tr>
+                        <td>{{.VID}}</td>
+                        <td>{{.CreatedDate}}</td>
+                        <td>${{.VoucherValue}}</td>
+
+                    </tr>
+
+                {{end}}
+
+                </tbody>
+            </table>
+                <p>Total Value Created: ${{index .IntMap "total"}}</p>
+
+        </div>
+
+
+
+
+            <div class="col">
+                <h2>Recent Used Voucher</h2><br>
+
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+
+                        <th>Voucher VID</th>
+                        <th>Created On</th>
+                        <th>Value</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {{$res := index .Data "voucher"}}
+
+                    {{range $res}}
+
+                        <tr>
+                            <td>{{.VID}}</td>
+                            <td>{{.CreatedDate}}</td>
+                            <td>${{.VoucherValue}}</td>
+
+                        </tr>
+
+                    {{end}}
+
+                    </tbody>
+                </table>
+                <p>Total Value Created: ${{index .IntMap "total"}}</p>
+
+            </div>
+        </div>
+    </main>
+{{end}}

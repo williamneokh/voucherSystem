@@ -34,8 +34,7 @@ func ValidKey(r *http.Request) bool {
 
 }
 
-//Home just a return a message if you are connected to the api
-func Home(w http.ResponseWriter, r *http.Request) {
+func Api(w http.ResponseWriter, r *http.Request) {
 	if !ValidKey(r) {
 		w.WriteHeader(http.StatusNotFound)
 		unsuccessfulMsg := models.ReturnMessage{

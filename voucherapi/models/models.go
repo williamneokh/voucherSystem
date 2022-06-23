@@ -28,3 +28,14 @@ type LastBalance struct {
 type ClaimedFloatFund struct {
 	VID string `json:"VID"`
 }
+type TemplateData struct {
+	StringMap map[string]string
+	IntMap    map[string]int
+	FloatMap  map[string]float32
+	Data      map[string]interface{}
+}
+
+type Admin struct {
+	Username string
+	Password []byte
+}

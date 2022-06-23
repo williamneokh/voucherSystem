@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"html/template"
+)
 
 type Config struct {
 	DBDriver string `mapstructure:"DB_DRIVER"`
@@ -20,4 +23,10 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 	err = viper.Unmarshal(&config)
 	return
+}
+
+type AppConfig struct {
+	UserCache     bool
+	TemplateCache map[string]*template.Template
+	InProduction  bool
 }

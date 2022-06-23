@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -156,4 +157,43 @@ func (m *DbVoucher) ValidateVoucher(vid, userId string) error {
 
 	}
 	return nil
+}
+
+func (m *DbVoucher) TotalVoucherIssued() (int, []DbVoucher) {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM Voucher ORDER BY Voucher_ID DESC LIMIT 10")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+	var created []DbVoucher
+	for results.Next() {
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.VoucherValue)
+		totalValue += value
+		data := DbVoucher{
+			Voucher_ID:   m.Voucher_ID,
+			VID:          m.VID,
+			UserID:       m.UserID,
+			UserPoints:   m.UserPoints,
+			CreatedDate:  m.CreatedDate,
+			VoucherValue: m.VoucherValue,
+			RedeemedDate: m.RedeemedDate,
+			MerchantID:   m.MerchantID,
+			Branch:       m.Branch,
+		}
+		created = append(created, data)
+	}
+	return totalValue, created
 }
