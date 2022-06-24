@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "eb043692-79e4-459c-ab1d-3e908c50d70e",
+		"name": "voucher system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "https",
+			"item": [
+				{
+					"name": "List All transaction of Master fund",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Key",
+								"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://127.0.0.1:3000/api/masterfund",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"masterfund"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Convert Points for Voucher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Key",
+								"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"UserID\":\"User001\",\n    \"Points\":\"1000\",\n    \"Value\":\"5\"\n\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://127.0.0.1:3000/api/getvoucher",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"getvoucher"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consume Voucher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Key",
+								"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"VID\":\"ff258d73-c96c-4333-9edd-51486a16b1c2\",\n    \"UserID\":\"User001\",\n    \"MerchantID\":\"ertertert\",\n    \"Branch\":\"ertertert-s-0001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://127.0.0.1:3000/api/consumevid",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"consumevid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Merchant Claims",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Key",
+								"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"VID\":\"433995a9-e33c-4246-a3f2-94214a4369e8\",\n    \"Branch\":\"8903jdklfds38-ss001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://127.0.0.1:3000/api/merchantclaims",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"merchantclaims"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
