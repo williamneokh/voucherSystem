@@ -36,12 +36,12 @@ func ViperDatabase(a *config.Config) {
 }
 
 //DepositMasterFund function create new incoming sponsorship fund into the mySql table MasterFund and update new balance
-func (m *DbMasterFund) DepositMasterFund(sponsorID, sponsorName, amount string) {
+func (m *DbMasterFund) DepositMasterFund(sponsorID, sponsorName, amount string) error {
 
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	defer db.Close()
@@ -49,12 +49,12 @@ func (m *DbMasterFund) DepositMasterFund(sponsorID, sponsorName, amount string) 
 	//Find out the latest balance from database
 	results, err := db.Query("SELECT * FROM MasterFund ORDER BY MFund_ID DESC LIMIT 1")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for results.Next() {
 		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 	}
@@ -77,8 +77,9 @@ func (m *DbMasterFund) DepositMasterFund(sponsorID, sponsorName, amount string) 
 
 	_, err = db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return err
 }
 
 //CheckSponsorIDorVID this function is part of validation check duplicated SponsorID or voucher ID(VID)

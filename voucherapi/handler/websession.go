@@ -149,31 +149,44 @@ func DepositMasterFund(w http.ResponseWriter, r *http.Request) {
 
 		//validation check for form input is empty
 		if SponsorNameOrUserID == "" || SponsorIDOrVID == "" || Amount == "" {
-			http.Error(w, "form input not found", http.StatusNotAcceptable)
-
+			title := "Warning!"
+			msg := fmt.Sprintf("form input not found")
+			Message(w, title, msg)
 			return
+
 		}
 		//validation check sponsor id if it exceeded database allowable characters of 8
 		if len(SponsorIDOrVID) > 8 {
-			http.Error(w, "Sponsor ID cannot be more than 8 varchar", http.StatusNotAcceptable)
+			title := "Warning!"
+			msg := fmt.Sprintf("Sponsor ID cannot be more than 8 varchar")
+			Message(w, title, msg)
 			return
+
 		}
 		//validation check sponsor name if it exceeded database allowable characters of 36
 		if len(SponsorNameOrUserID) > 36 {
-			http.Error(w, "Sponsor name cannot be more than 36 varchar", http.StatusNotAcceptable)
+
+			title := "Warning!"
+			msg := fmt.Sprintf("Sponsor name cannot be more than 36 varchar")
+			Message(w, title, msg)
 			return
+
 		}
 
 		//validation check amount input is integer value
 		_, err := strconv.Atoi(Amount)
 		if err != nil {
-
-			http.Error(w, fmt.Sprintf("expecting integer value but got : %v", Amount), http.StatusNotAcceptable)
+			title := "Warning!"
+			msg := fmt.Sprintf("expecting integer value but got : %v", Amount)
+			Message(w, title, msg)
 			return
 		}
 		//validation check sponsor amount if it exceeded database allowable characters of 8
 		if len(Amount) > 8 {
-			http.Error(w, "the characters use for amount cannot be more than 8 varchar", http.StatusNotAcceptable)
+
+			title := "Warning!"
+			msg := fmt.Sprintf("the characters use for amount cannot be more than 8 varchar")
+			Message(w, title, msg)
 			return
 		}
 
@@ -181,12 +194,36 @@ func DepositMasterFund(w http.ResponseWriter, r *http.Request) {
 		var ns database.DbMasterFund
 
 		if ns.CheckSponsorIDorVID(SponsorIDOrVID) {
-			http.Error(w, "the Sponsor ID has been used before, please give another unique Sponsor ID and resubmit again", http.StatusNotAcceptable)
+
+			title := "Alert!"
+			msg := fmt.Sprintf("the Sponsor ID has been used before, please give another unique Sponsor ID and resubmit again")
+			Message(w, title, msg)
 			return
 		}
-		ns.DepositMasterFund(SponsorIDOrVID, SponsorNameOrUserID, Amount)
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		err = ns.DepositMasterFund(SponsorIDOrVID, SponsorNameOrUserID, Amount)
+		if err != nil {
+			title := "ERROR"
+			msg := fmt.Sprintf("Failed to deposit %v, due to internal server error", Amount)
+			Message(w, title, msg)
+		}
+		title := "Deposit Success"
+		msg := fmt.Sprintf("Total amount received: %v", Amount)
+		Message(w, title, msg)
 		return
 	}
 
+}
+
+func Message(w http.ResponseWriter, title, msg string) {
+	var bal database.DbMasterFund
+	latestBalance := bal.FindLatestBalance()
+
+	strMap := make(map[string]string)
+	strMap["balance"] = latestBalance
+	strMap["title"] = title
+	strMap["message"] = msg
+
+	render.RenderTemplate(w, "message.page.tmpl", &models.TemplateData{
+		StringMap: strMap,
+	})
 }

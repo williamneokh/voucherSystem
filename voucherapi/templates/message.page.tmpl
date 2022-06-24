@@ -1,0 +1,12 @@
+{{template "base" .}}
+
+{{define "content"}}
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">{{index .StringMap "title"}}</h4>
+        <p>{{index .StringMap "message"}}</p>
+
+    </div>
+
+
+    </main>
+{{end}}

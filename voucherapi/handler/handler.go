@@ -149,7 +149,10 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			newSponsor.DepositMasterFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
+			err = newSponsor.DepositMasterFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
+			if err != nil {
+				log.Println(err)
+			}
 			w.WriteHeader(http.StatusCreated)
 			successMsg := models.ReturnMessage{
 				true,
