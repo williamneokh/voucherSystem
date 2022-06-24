@@ -8,6 +8,7 @@ import (
 	"github.com/williamneokh/voucherSystem/render"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strconv"
 )
 
 var mapAdmin = map[string]models.Admin{}
@@ -98,11 +99,12 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	}
 	var v database.DbVoucher
 	var record = make(map[string]interface{})
-	var vValue = make(map[string]int)
-	totalVoucherValue, created := v.TotalVoucherIssued()
 
-	record["voucher"] = created
-	vValue["total"] = totalVoucherValue
+	_, created := v.TotalVoucherIssued()
+	_, used := v.TotalVoucherUsed()
+
+	record["created"] = created
+	record["used"] = used
 
 	var bal database.DbMasterFund
 	latestBalance := bal.FindLatestBalance()
@@ -111,7 +113,80 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	fund["balance"] = latestBalance
 	render.RenderTemplate(w, "dashboard.page.tmpl", &models.TemplateData{
 		StringMap: fund,
-		IntMap:    vValue,
 		Data:      record,
 	})
+}
+
+//AddFund allow administrator to add sponsor fund into MasterFund table
+func AddFund(w http.ResponseWriter, r *http.Request) {
+
+	if !AlreadyLoggedIn(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+
+	//var f database.DbMasterFund
+	//
+	//f.DepositMasterFund()
+	var bal database.DbMasterFund
+	latestBalance := bal.FindLatestBalance()
+
+	fund := make(map[string]string)
+	fund["balance"] = latestBalance
+
+	render.RenderTemplate(w, "addfund.page.tmpl", &models.TemplateData{
+		StringMap: fund,
+	})
+}
+
+func DepositMasterFund(w http.ResponseWriter, r *http.Request) {
+	if !AlreadyLoggedIn(r) {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+	if r.Method == http.MethodPost {
+		SponsorIDOrVID := r.FormValue("SponsorIDOrVID")
+		SponsorNameOrUserID := r.FormValue("SponsorNameOrUserID")
+		Amount := r.FormValue("Amount")
+
+		//validation check for form input is empty
+		if SponsorNameOrUserID == "" || SponsorIDOrVID == "" || Amount == "" {
+			http.Error(w, "form input not found", http.StatusNotAcceptable)
+
+			return
+		}
+		//validation check sponsor id if it exceeded database allowable characters of 8
+		if len(SponsorIDOrVID) > 8 {
+			http.Error(w, "Sponsor ID cannot be more than 8 varchar", http.StatusNotAcceptable)
+			return
+		}
+		//validation check sponsor name if it exceeded database allowable characters of 36
+		if len(SponsorNameOrUserID) > 36 {
+			http.Error(w, "Sponsor name cannot be more than 36 varchar", http.StatusNotAcceptable)
+			return
+		}
+
+		//validation check amount input is integer value
+		_, err := strconv.Atoi(Amount)
+		if err != nil {
+
+			http.Error(w, fmt.Sprintf("expecting integer value but got : %v", Amount), http.StatusNotAcceptable)
+			return
+		}
+		//validation check sponsor amount if it exceeded database allowable characters of 8
+		if len(Amount) > 8 {
+			http.Error(w, "the characters use for amount cannot be more than 8 varchar", http.StatusNotAcceptable)
+			return
+		}
+
+		//validation check if the sponsorID has been used before
+		var ns database.DbMasterFund
+
+		if ns.CheckSponsorIDorVID(SponsorIDOrVID) {
+			http.Error(w, "the Sponsor ID has been used before, please give another unique Sponsor ID and resubmit again", http.StatusNotAcceptable)
+			return
+		}
+		ns.DepositMasterFund(SponsorIDOrVID, SponsorNameOrUserID, Amount)
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
 }

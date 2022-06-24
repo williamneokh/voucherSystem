@@ -4,11 +4,47 @@
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Admin Dashboard</h1>
-            <h5 class="h5">Fund Balance: {{index .FloatMap "fund"}}</h5>
-
+            <h5 class="h5">Fund Balance: {{index .StringMap "balance"}}</h5>
         </div>
+        <div class="container">
+            <div class="row">
+                <div class="d-flex justify-content-center">
+                    <img src="./images/fund.jpg" width="400">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="d-flex justify-content-center">
+                        <div class="w-50 p-3">
+                            <hr>
+                            <h2>Add Sponsor Fund</h2>
+                            <form action="/deposit" method="post" >
 
-        <h2>Section title</h2>
+                                <div class="row mb-3" >
+                                    <label for="inputSponsorNameOrUserID" class="col-sm-2 col-form-label">Sponsor Name</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="SponsorNameOrUserID" class="form-control" id="inputSponsorNameOrUserID">
+                                    </div>
+                                </div>
+                                <div class="row mb-3" >
+                                    <label for="inputSponsorIDOrVID" class="col-sm-2 col-form-label">Unique Sponsor ID</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="SponsorIDOrVID" class="form-control" id="inputSponsorIDOrVID">
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="inputAmount" class="col-sm-2 col-form-label">Amount</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="Amount" class="form-control" id="inputAmount">
+                                    </div>
+                                </div>
 
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 {{end}}

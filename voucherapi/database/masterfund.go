@@ -146,10 +146,11 @@ func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 //WithdrawMasterFund insert voucher into Masterfund database, it also update the masterfund balance
 func (m *DbMasterFund) WithdrawMasterFund(VID, userID, amount string, group *sync.WaitGroup) error {
 	defer group.Done()
+
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
-		return err
+		return errors.New("failed to connect to MaterFund database")
 	}
 
 	defer db.Close()

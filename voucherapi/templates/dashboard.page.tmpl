@@ -10,22 +10,23 @@
 
         <div class="container">
             <div class="col">
-            <h2>Recent Create Voucher</h2><br>
+            <h2>Recent Created Voucher</h2><br>
 
             <table class="table table-striped">
                 <thead>
                 <tr>
 
                     <th>Voucher VID</th>
-                    <th>Created On</th>
+                    <th>Created Date:Time</th>
                     <th>Value</th>
+                    <th>User</th>
 
 
                 </tr>
                 </thead>
                 <tbody>
 
-                {{$res := index .Data "voucher"}}
+                {{$res := index .Data "created"}}
 
                 {{range $res}}
 
@@ -33,6 +34,7 @@
                         <td>{{.VID}}</td>
                         <td>{{.CreatedDate}}</td>
                         <td>${{.VoucherValue}}</td>
+                        <td>{{.UserID}}</td>
 
                     </tr>
 
@@ -40,14 +42,15 @@
 
                 </tbody>
             </table>
-                <p>Total Value Created: ${{index .IntMap "total"}}</p>
+
 
         </div>
 
 
-
+<br>
 
             <div class="col">
+
                 <h2>Recent Used Voucher</h2><br>
 
                 <table class="table table-striped">
@@ -55,22 +58,25 @@
                     <tr>
 
                         <th>Voucher VID</th>
-                        <th>Created On</th>
+                        <th>Spend Date:Time</th>
                         <th>Value</th>
+                        <th>Branch Code</th>
 
 
                     </tr>
                     </thead>
                     <tbody>
 
-                    {{$res := index .Data "voucher"}}
+                    {{$res2 := index .Data "used"}}
 
-                    {{range $res}}
+                    {{range $res2}}
 
                         <tr>
+
                             <td>{{.VID}}</td>
-                            <td>{{.CreatedDate}}</td>
+                            <td>{{.RedeemedDate}}</td>
                             <td>${{.VoucherValue}}</td>
+                            <td>{{.Branch}}</td>
 
                         </tr>
 
@@ -78,7 +84,7 @@
 
                     </tbody>
                 </table>
-                <p>Total Value Created: ${{index .IntMap "total"}}</p>
+
 
             </div>
         </div>

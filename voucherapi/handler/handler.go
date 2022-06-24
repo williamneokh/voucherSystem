@@ -101,7 +101,12 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 			//check sponsor name if it exceeded database allowable characters of 36
 			if len(newSponsor.SponsorNameOrUserID) > 36 {
 				w.WriteHeader(http.StatusNotAcceptable)
-				_, _ = w.Write([]byte("406 - The characters for sponsor name cannot be more than 36."))
+				unsuccessfulMsg := models.ReturnMessage{
+					false,
+					"[MS-VOUCHERS]: The characters for sponsor name cannot be more than 36.",
+					"",
+				}
+				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 				return
 			}
 			//Make sure sponsor amount is a valid integer
@@ -118,7 +123,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			//check sponsor amount if it exceeded database allowable characters of 7
+			//check sponsor amount if it exceeded database allowable characters of 8
 			if len(newSponsor.Amount) > 8 {
 
 				w.WriteHeader(http.StatusNotAcceptable)

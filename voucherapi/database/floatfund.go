@@ -25,7 +25,7 @@ func (m *DbFloatFund) AddFloat(VID, floatValue string, group *sync.WaitGroup) er
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
-		return err
+		return errors.New("failed to connect to FloatFund database")
 	}
 
 	defer db.Close()

@@ -22,10 +22,12 @@ func route() http.Handler {
 	router.HandleFunc("/login", handler.Login)
 	router.HandleFunc("/logout", handler.Logout)
 	router.HandleFunc("/dashboard", handler.Dashboard)
+	router.HandleFunc("/addfund", handler.AddFund)
+	router.HandleFunc("/deposit", handler.DepositMasterFund)
 
 	//API Backend connection
 	router.HandleFunc("/api", handler.Api)
-	router.HandleFunc("/api/sponsor/{sponsorid}", handler.Sponsor).Methods("POST")
+	//router.HandleFunc("/api/sponsor/{sponsorid}", handler.Sponsor).Methods("POST")
 	router.HandleFunc("/api/masterfund", handler.AllMasterFundRecords).Methods("POST")
 	router.HandleFunc("/api/fundbalance", handler.FundBalance).Methods("GET")
 	router.HandleFunc("/api/getvoucher", handler.GetVoucher).Methods("POST")
