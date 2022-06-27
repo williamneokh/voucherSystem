@@ -109,6 +109,10 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 	var bal database.DbMasterFund
 	latestBalance := bal.FindLatestBalance()
 
+	if latestBalance == "" {
+		latestBalance = "0"
+	}
+
 	fund := make(map[string]string)
 	fund["balance"] = latestBalance
 	render.RenderTemplate(w, "dashboard.page.tmpl", &models.TemplateData{
@@ -132,6 +136,9 @@ func AddFund(w http.ResponseWriter, r *http.Request) {
 
 	fund := make(map[string]string)
 	fund["balance"] = latestBalance
+	if latestBalance == "" {
+		latestBalance = "0"
+	}
 
 	render.RenderTemplate(w, "addfund.page.tmpl", &models.TemplateData{
 		StringMap: fund,
@@ -217,6 +224,9 @@ func DepositMasterFund(w http.ResponseWriter, r *http.Request) {
 func Message(w http.ResponseWriter, title, msg string) {
 	var bal database.DbMasterFund
 	latestBalance := bal.FindLatestBalance()
+	if latestBalance == "" {
+		latestBalance = "0"
+	}
 
 	strMap := make(map[string]string)
 	strMap["balance"] = latestBalance

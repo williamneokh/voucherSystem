@@ -9,7 +9,6 @@ import (
 	"github.com/williamneokh/voucherSystem/render"
 	"log"
 	"net/http"
-	"time"
 )
 
 var app config.AppConfig
@@ -70,9 +69,6 @@ func main() {
 	srv := &http.Server{
 		Handler: route(),
 		Addr:    portNumber,
-		// Good practice: enforce timeouts for servers you create!
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
 	}
 	log.Fatal(srv.ListenAndServeTLS("ssl/localhost.cert.pem", "ssl/localhost.key.pem"))
 	//log.Fatal(srv.ListenAndServe())
