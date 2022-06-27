@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -141,4 +142,62 @@ func (m *DbFloatFund) GetFloatDetails(VID string) DbFloatFund {
 
 	}
 	return DbFloatFund{}
+}
+
+//FloatFundBalance calculate the available floating fund balance
+func (m *DbFloatFund) FloatFundBalance() int {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM FloatFund WHERE Branch = 'OPEN'")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+
+	for results.Next() {
+		err = results.Scan(&m.FFund_ID, &m.VID, &m.FloatDate, &m.FloatValue, &m.WithdrawalDate, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.FloatValue)
+		totalValue += value
+
+	}
+	return totalValue
+}
+
+//MerchantClaimed calculate the total amount issued to merchant
+func (m *DbFloatFund) MerchantClaimed() int {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM FloatFund WHERE Branch != 'OPEN'")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+
+	for results.Next() {
+		err = results.Scan(&m.FFund_ID, &m.VID, &m.FloatDate, &m.FloatValue, &m.WithdrawalDate, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.FloatValue)
+		totalValue += value
+
+	}
+	return totalValue
 }

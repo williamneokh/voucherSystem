@@ -278,3 +278,31 @@ func (m *DbMasterFund) FindLatestBalance() string {
 	return m.BalancedFund
 
 }
+
+func (m *DbMasterFund) TotalFundReceived() int {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM MasterFund WHERE TransactionType = 'Deposit'")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+
+	for results.Next() {
+		err = results.Scan(&m.Mfund_ID, &m.TransactionType, &m.SponsorIDOrVID, &m.SponsorNameOrUserID, &m.TransactionDate, &m.Amount, &m.BalancedFund)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.Amount)
+		totalValue += value
+
+	}
+	return totalValue
+}

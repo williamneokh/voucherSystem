@@ -98,13 +98,26 @@ func Dashboard(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 	var v database.DbVoucher
+	var mf database.DbMasterFund
+	var ff database.DbFloatFund
 	var record = make(map[string]interface{})
 
-	_, created := v.TotalVoucherIssued()
-	_, used := v.TotalVoucherUsed()
+	merchantClaimed := ff.MerchantClaimed()
+	floatBalance := ff.FloatFundBalance()
+	totalReceive := mf.TotalFundReceived()
+	totalVoucherValue := v.TotalVoucherIssued()
 
+	_, created := v.TenVoucherIssued()
+	_, used := v.TenVoucherUsed()
+	voucherSpent := v.TotalVoucherSpent()
+
+	record["merchantClaimed"] = merchantClaimed
+	record["floatBalance"] = floatBalance
+	record["totalFundReceieved"] = totalReceive
+	record["totalVoucherValue"] = totalVoucherValue
 	record["created"] = created
 	record["used"] = used
+	record["voucherSpent"] = voucherSpent
 
 	var bal database.DbMasterFund
 	latestBalance := bal.FindLatestBalance()

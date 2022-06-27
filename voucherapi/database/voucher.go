@@ -159,7 +159,8 @@ func (m *DbVoucher) ValidateVoucher(vid, userId string) error {
 	return nil
 }
 
-func (m *DbVoucher) TotalVoucherIssued() (int, []DbVoucher) {
+//TenVoucherIssued query database for the latest 10 transaction of voucher generated
+func (m *DbVoucher) TenVoucherIssued() (int, []DbVoucher) {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -197,7 +198,38 @@ func (m *DbVoucher) TotalVoucherIssued() (int, []DbVoucher) {
 	}
 	return totalValue, created
 }
-func (m *DbVoucher) TotalVoucherUsed() (int, []DbVoucher) {
+
+//TotalVoucherIssued count the total number of voucher value generated or total fund been used
+func (m *DbVoucher) TotalVoucherIssued() int {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM Voucher")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+
+	for results.Next() {
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.VoucherValue)
+		totalValue += value
+
+	}
+	return totalValue
+}
+
+//TenVoucherUsed query database for the latest 10 transaction of voucher used
+func (m *DbVoucher) TenVoucherUsed() (int, []DbVoucher) {
 	db, err := sql.Open(vip.DBDriver, vip.DBSource)
 
 	if err != nil {
@@ -234,6 +266,35 @@ func (m *DbVoucher) TotalVoucherUsed() (int, []DbVoucher) {
 		created = append(created, data)
 	}
 	return totalValue, created
+}
+
+//TotalVoucherSpent count the total number of voucher value spent by user
+func (m *DbVoucher) TotalVoucherSpent() int {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	//Find out the latest balance from database
+	results, err := db.Query("SELECT * FROM Voucher WHERE Branch != 'OPEN'")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var totalValue int
+
+	for results.Next() {
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		value, _ := strconv.Atoi(m.VoucherValue)
+		totalValue += value
+
+	}
+	return totalValue
 }
 
 //GetVoucherDetails search vid and retrieve information of that data

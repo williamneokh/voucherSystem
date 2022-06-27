@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	uuid "github.com/satori/go.uuid"
 	"github.com/williamneokh/voucherSystem/config"
 	"github.com/williamneokh/voucherSystem/database"
@@ -11,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"sync"
 )
 
@@ -48,124 +46,6 @@ func Api(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, _ = fmt.Fprintf(w, "You are connected to Voucher System API")
-}
-
-//Sponsor allow administrator to add sponsor fund into MasterFund table
-func Sponsor(w http.ResponseWriter, r *http.Request) {
-	if !ValidKey(r) {
-		w.WriteHeader(http.StatusNotFound)
-		unsuccessfulMsg := models.ReturnMessage{
-			false,
-			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			empty{},
-		}
-		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-		return
-	}
-
-	params := mux.Vars(r)
-
-	if r.Header.Get("Content-type") == "application/json" {
-
-		if r.Method == "POST" {
-
-			reqBody, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
-			var newSponsor database.DbMasterFund
-
-			_ = json.Unmarshal(reqBody, &newSponsor)
-
-			//check for any empty field
-			if newSponsor.SponsorNameOrUserID == "" || newSponsor.Amount == "" {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
-					empty{},
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-				return
-			}
-
-			//check sponsor id if it exceeded database allowable characters of 8
-			if len(params["sponsorid"]) > 8 {
-				w.WriteHeader(http.StatusNotAcceptable)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					"[MS-VOUCHERS]: The characters for sponsor id cannot be more than 8.",
-					"",
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-				return
-			}
-			//check sponsor name if it exceeded database allowable characters of 36
-			if len(newSponsor.SponsorNameOrUserID) > 36 {
-				w.WriteHeader(http.StatusNotAcceptable)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					"[MS-VOUCHERS]: The characters for sponsor name cannot be more than 36.",
-					empty{},
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-				return
-			}
-			//Make sure sponsor amount is a valid integer
-			_, err = strconv.Atoi(newSponsor.Amount)
-			if err != nil {
-				w.WriteHeader(http.StatusNotAcceptable)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					fmt.Sprintf("[MS-VOUCHERS]: Expecting integer only but got: '%v'", newSponsor.Amount),
-					"",
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-
-				return
-			}
-
-			//check sponsor amount if it exceeded database allowable characters of 8
-			if len(newSponsor.Amount) > 8 {
-
-				w.WriteHeader(http.StatusNotAcceptable)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					"[MS-VOUCHERS]: The characters for sponsor amount cannot be more than 8.",
-					empty{},
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-				return
-			}
-
-			//check if the sponsorID has been use.
-			if newSponsor.CheckSponsorIDorVID(params["sponsorid"]) {
-
-				w.WriteHeader(http.StatusNotAcceptable)
-				unsuccessfulMsg := models.ReturnMessage{
-					false,
-					"[MS-VOUCHERS]: The Sponsor ID or VID has been used, please create new sponsor ID or Voucher",
-					empty{},
-				}
-				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
-				return
-			}
-
-			err = newSponsor.DepositMasterFund(params["sponsorid"], newSponsor.SponsorNameOrUserID, newSponsor.Amount)
-			if err != nil {
-				log.Println(err)
-			}
-			w.WriteHeader(http.StatusCreated)
-			successMsg := models.ReturnMessage{
-				true,
-				"[MS-VOUCHERS]: Sponsor fund deposit, successful",
-				fmt.Sprintf("Code: %v", params["sponsorid"]),
-			}
-
-			_ = json.NewEncoder(w).Encode(successMsg)
-		}
-
-	}
 }
 
 //AllMasterFundRecords allow administrator to list all the date in Masterfund table

@@ -26,7 +26,6 @@ func route() http.Handler {
 
 	//API Backend connection
 	router.HandleFunc("/api", handler.Api)
-	//router.HandleFunc("/api/sponsor/{sponsorid}", handler.Sponsor).Methods("POST")
 	router.HandleFunc("/api/masterfund", handler.AllMasterFundRecords).Methods("POST")
 	router.HandleFunc("/api/fundbalance", handler.FundBalance).Methods("GET")
 	router.HandleFunc("/api/getvoucher", handler.GetVoucher).Methods("POST")
