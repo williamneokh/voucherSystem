@@ -34,13 +34,15 @@ func ValidKey(r *http.Request) bool {
 
 }
 
+type empty struct{}
+
 func Api(w http.ResponseWriter, r *http.Request) {
 	if !ValidKey(r) {
 		w.WriteHeader(http.StatusNotFound)
 		unsuccessfulMsg := models.ReturnMessage{
 			false,
 			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			"",
+			empty{},
 		}
 		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 		return
@@ -55,7 +57,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 		unsuccessfulMsg := models.ReturnMessage{
 			false,
 			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			"",
+			empty{},
 		}
 		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 		return
@@ -81,7 +83,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 				return
@@ -104,7 +106,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: The characters for sponsor name cannot be more than 36.",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 				return
@@ -130,7 +132,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: The characters for sponsor amount cannot be more than 8.",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 				return
@@ -143,7 +145,7 @@ func Sponsor(w http.ResponseWriter, r *http.Request) {
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: The Sponsor ID or VID has been used, please create new sponsor ID or Voucher",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 				return
@@ -173,7 +175,7 @@ func AllMasterFundRecords(w http.ResponseWriter, r *http.Request) {
 		unsuccessfulMsg := models.ReturnMessage{
 			false,
 			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			"",
+			empty{},
 		}
 		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 		return
@@ -193,7 +195,7 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 		unsuccessfulMsg := models.ReturnMessage{
 			false,
 			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			"",
+			empty{},
 		}
 		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 		return
@@ -216,19 +218,20 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 
 				return
 			}
 			//Validation check if there are enough fund to generate new voucher
+
 			if !mFund.CheckMasterFund(gen.Value) {
 				w.WriteHeader(http.StatusPaymentRequired)
 				unsuccessfulMsg := models.ReturnMessage{
 					false,
 					"[MS-VOUCHERS]: Insufficient balance in MasterFund",
-					"",
+					empty{},
 				}
 				_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 
@@ -274,7 +277,7 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 					unsuccessfulMsg := models.ReturnMessage{
 						false,
 						fmt.Sprintf("[MS-VOUCHERS]: InternalServerError: %v", err),
-						"",
+						empty{},
 					}
 					_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 					isRecordedDatabase = false
@@ -292,7 +295,7 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 					unsuccessfulMsg := models.ReturnMessage{
 						false,
 						fmt.Sprintf("[MS-VOUCHERS]: InternalServerError: %v", err),
-						"",
+						empty{},
 					}
 					_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 					isRecordedDatabase = false
@@ -302,9 +305,12 @@ func GetVoucher(w http.ResponseWriter, r *http.Request) {
 
 			wg.Wait()
 			if isRecordedDatabase == true {
+				var getDetails database.DbVoucher
+				result := getDetails.GetVoucherDetails(VID)
+
 				w.WriteHeader(http.StatusOK)
 				var issueVID models.GetVoucher
-				issueVID = models.GetVoucher{VID, gen.UserID, gen.Points, gen.Value}
+				issueVID = models.GetVoucher{VID, gen.UserID, gen.Points, gen.Value, result.CreatedDate}
 				successMsg := models.ReturnMessage{
 					true,
 					"[MS-VOUCHERS]: Generate new voucher, successful",
@@ -387,13 +393,14 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
 				"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
-				"",
+				empty{},
 			}
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			return
 		}
 		var isRecordDatabase = true
 		var voucher database.DbVoucher
+
 		err = voucher.ValidateVoucher(con.VID, con.UserID)
 
 		if err != nil {
@@ -401,7 +408,7 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
 				fmt.Sprintf("[MS-VOUCHERS]: %s", err),
-				"",
+				empty{},
 			}
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			isRecordDatabase = false
@@ -414,20 +421,23 @@ func ConsumeVID(w http.ResponseWriter, r *http.Request) {
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
 				fmt.Sprintf("[MS-VOUCHERS]: %s", err),
-				"",
+				empty{},
 			}
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			isRecordDatabase = false
 			return
 		}
 		if isRecordDatabase == true {
+			var getDetails database.DbVoucher
+			result := getDetails.GetVoucherDetails(con.VID)
 			w.WriteHeader(http.StatusAccepted)
 
 			successConsume := models.ConsumeVID{
-				VID:        con.VID,
-				UserID:     con.UserID,
-				MerchantID: con.MerchantID,
-				Branch:     con.Branch,
+				VID:          con.VID,
+				UserID:       con.UserID,
+				MerchantID:   con.MerchantID,
+				Branch:       con.Branch,
+				RedeemedDate: result.RedeemedDate,
 			}
 			successMsg := models.ReturnMessage{
 				true,
@@ -473,7 +483,7 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 		unsuccessfulMsg := models.ReturnMessage{
 			false,
 			"[MS-VOUCHERS]: Invalid key API_TOKEN",
-			"",
+			empty{},
 		}
 		_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 		return
@@ -493,7 +503,7 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
 				"[MS-VOUCHERS]: Please supply sponsor information in JSON format",
-				"",
+				empty{},
 			}
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			return
@@ -505,14 +515,16 @@ func MerchantClaims(w http.ResponseWriter, r *http.Request) {
 			unsuccessfulMsg := models.ReturnMessage{
 				false,
 				fmt.Sprintf("MS-VOUCHERS]: %v", err),
-				"",
+				empty{},
 			}
 			_ = json.NewEncoder(w).Encode(unsuccessfulMsg)
 			return
 		}
-
+		var getDetails database.DbFloatFund
+		result := getDetails.GetFloatDetails(wd.VID)
 		data := models.ClaimedFloatFund{
-			VID: wd.VID,
+			VID:       wd.VID,
+			ClaimedOn: result.WithdrawalDate,
 		}
 
 		successMsg := models.ReturnMessage{

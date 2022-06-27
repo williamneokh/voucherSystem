@@ -10,13 +10,12 @@ import (
 )
 
 type DbFloatFund struct {
-	FFund_ID        string `json:"FFund_ID"`
-	VID             string `json:"VID"`
-	FloatDate       string `json:"FloatDate"`
-	FloatValue      string `json:"FloatValue"`
-	WithdrawalDate  string `json:"WithdrawalDate"`
-	WithdrawalValue string `json:"WithdrawalValue"`
-	Branch          string `json:"Branch"`
+	FFund_ID       string `json:"FFund_ID"`
+	VID            string `json:"VID"`
+	FloatDate      string `json:"FloatDate"`
+	FloatValue     string `json:"FloatValue"`
+	WithdrawalDate string `json:"WithdrawalDate"`
+	Branch         string `json:"Branch"`
 }
 
 //AddFloat transfer from the MasterFund to FloatFund database. FloatFund database is where vendor are allowed to make fund claims.
@@ -91,6 +90,13 @@ func (m *DbFloatFund) VendorWithdrawal(VID, branch string) error {
 		return errors.New(fmt.Sprintf("voucher has been claimed before on: %v - by merchant ID: %v", m.WithdrawalDate, m.Branch))
 	}
 
+	//Validation if the branch consume is equal to the same branch that claim the voucher
+	var details DbVoucher
+	result := details.GetVoucherDetails(VID)
+	if branch != result.Branch {
+		return errors.New(fmt.Sprintf("voucher was used on: %v at location: %v, a different branch: %v trying to claim the voucher.", result.RedeemedDate, result.Branch, branch))
+	}
+
 	//perform update database with timestamp and merchantID
 	now := time.Now()
 
@@ -102,4 +108,37 @@ func (m *DbFloatFund) VendorWithdrawal(VID, branch string) error {
 	}
 	return nil
 
+}
+
+//GetFloatDetails search vid and retrieve information of that data
+func (m *DbFloatFund) GetFloatDetails(VID string) DbFloatFund {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	results, err := db.Query("SELECT * FROM FloatFund Where VID = ?", VID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for results.Next() {
+		err = results.Scan(&m.FFund_ID, &m.VID, &m.FloatDate, &m.FloatValue, &m.WithdrawalDate, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data := DbFloatFund{
+			FFund_ID:       m.FFund_ID,
+			VID:            m.VID,
+			FloatDate:      m.FloatDate,
+			FloatValue:     m.FloatValue,
+			WithdrawalDate: m.WithdrawalDate,
+			Branch:         m.Branch,
+		}
+		return data
+
+	}
+	return DbFloatFund{}
 }

@@ -151,7 +151,7 @@ func (m *DbVoucher) ValidateVoucher(vid, userId string) error {
 			if m.MerchantID == "OPEN" {
 				//fmt.Println("Valid unused voucher")
 			} else {
-				return errors.New("voucher has been used")
+				return errors.New(fmt.Sprintf("voucher has been used at branch: %v", m.Branch))
 			}
 		}
 
@@ -234,4 +234,42 @@ func (m *DbVoucher) TotalVoucherUsed() (int, []DbVoucher) {
 		created = append(created, data)
 	}
 	return totalValue, created
+}
+
+//GetVoucherDetails search vid and retrieve information of that data
+func (m *DbVoucher) GetVoucherDetails(VID string) DbVoucher {
+	db, err := sql.Open(vip.DBDriver, vip.DBSource)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+	fmt.Println(VID + "this is from getvouchercreationDate")
+
+	results, err := db.Query("SELECT * FROM Voucher Where VID = ?", VID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for results.Next() {
+		err = results.Scan(&m.Voucher_ID, &m.VID, &m.UserID, &m.UserPoints, &m.CreatedDate, &m.VoucherValue, &m.RedeemedDate, &m.MerchantID, &m.Branch)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data := DbVoucher{
+			Voucher_ID:   m.Voucher_ID,
+			VID:          m.VID,
+			UserID:       m.UserID,
+			UserPoints:   m.UserPoints,
+			CreatedDate:  m.CreatedDate,
+			VoucherValue: m.VoucherValue,
+			RedeemedDate: m.RedeemedDate,
+			MerchantID:   m.MerchantID,
+			Branch:       m.Branch,
+		}
+		fmt.Println(data)
+		return data
+
+	}
+	return DbVoucher{}
 }

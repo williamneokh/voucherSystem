@@ -1,17 +1,19 @@
 package models
 
 type GetVoucher struct {
-	VID    string `json:"VID"`
-	UserID string `json:"UserID"`
-	Points string `json:"Points"`
-	Value  string `json:"Value"`
+	VID         string `json:"VID"`
+	UserID      string `json:"UserID"`
+	Points      string `json:"Points"`
+	Value       string `json:"Value"`
+	CreatedDate string `json:"CreatedDate"`
 }
 
 type ConsumeVID struct {
-	VID        string `json:"VID"`
-	UserID     string `json:"UserID"`
-	MerchantID string `json:"MerchantID"`
-	Branch     string `json:"Branch"`
+	VID          string `json:"VID"`
+	UserID       string `json:"UserID"`
+	MerchantID   string `json:"MerchantID"`
+	Branch       string `json:"Branch"`
+	RedeemedDate string `json:"RedeemedDate"`
 }
 
 type ReturnMessage struct {
@@ -26,7 +28,8 @@ type LastBalance struct {
 }
 
 type ClaimedFloatFund struct {
-	VID string `json:"VID"`
+	VID       string `json:"VID"`
+	ClaimedOn string `json:"ClaimedOn"`
 }
 type TemplateData struct {
 	StringMap map[string]string

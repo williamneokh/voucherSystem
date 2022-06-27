@@ -132,6 +132,7 @@ func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		newRecord = DbMasterFund{m.Mfund_ID, m.TransactionType, m.SponsorIDOrVID, m.SponsorNameOrUserID, m.TransactionDate, m.Amount, m.BalancedFund}
 		successMsg := models.ReturnMessage{
 			true,
@@ -141,6 +142,19 @@ func (m *DbMasterFund) ListMasterFundRecords(w http.ResponseWriter) {
 
 		_ = json.NewEncoder(w).Encode(successMsg)
 
+	}
+	type empty struct{}
+	if count == 0 {
+		emptyStuct := empty{}
+		successMsg := models.ReturnMessage{
+			true,
+			fmt.Sprintf("no record found"),
+			emptyStuct,
+		}
+
+		_ = json.NewEncoder(w).Encode(successMsg)
+
+		return
 	}
 }
 

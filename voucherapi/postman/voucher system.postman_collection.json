@@ -53,7 +53,7 @@
 					},
 					"response": [
 						{
-							"name": "List All transaction of Master fund",
+							"name": "No record found",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -114,6 +114,69 @@
 							],
 							"cookie": [],
 							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Result: 1\",\"data\":{\"Mfund_ID\":1,\"TransactionType\":\"Deposit\",\"SponsorIDOrVID\":\"nutc-001\",\"SponsorNameOrUserID\":\"NTUC\",\"TransactionDate\":\"2022-06-27 01:02:19\",\"Amount\":\"1000\",\"BalancedFund\":\"1000\"}}\n"
+						},
+						{
+							"name": "List all master fund transaction",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/masterfund",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"masterfund"
+									],
+									"query": [
+										{
+											"key": "key",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 03:52:35 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "931"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Result: 1\",\"data\":{\"Mfund_ID\":1,\"TransactionType\":\"Deposit\",\"SponsorIDOrVID\":\"ntuc-001\",\"SponsorNameOrUserID\":\"NTUC\",\"TransactionDate\":\"2022-06-27 03:50:19\",\"Amount\":\"1000\",\"BalancedFund\":\"1000\"}}\n{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Result: 2\",\"data\":{\"Mfund_ID\":2,\"TransactionType\":\"Deposit\",\"SponsorIDOrVID\":\"ss-001\",\"SponsorNameOrUserID\":\"Seng Siong\",\"TransactionDate\":\"2022-06-27 03:51:27\",\"Amount\":\"1500\",\"BalancedFund\":\"2500\"}}\n{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Result: 3\",\"data\":{\"Mfund_ID\":3,\"TransactionType\":\"Deposit\",\"SponsorIDOrVID\":\"7e-001\",\"SponsorNameOrUserID\":\"7-Eleven\",\"TransactionDate\":\"2022-06-27 03:51:56\",\"Amount\":\"800\",\"BalancedFund\":\"3300\"}}\n{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Result: 4\",\"data\":{\"Mfund_ID\":4,\"TransactionType\":\"Deposit\",\"SponsorIDOrVID\":\"CS-001\",\"SponsorNameOrUserID\":\"Cold Storage\",\"TransactionDate\":\"2022-06-27 03:52:19\",\"Amount\":\"3000\",\"BalancedFund\":\"6300\"}}\n"
 						}
 					]
 				},
@@ -155,7 +218,7 @@
 					},
 					"response": [
 						{
-							"name": "Convert Points for Voucher",
+							"name": "Successfully Convert Points For Voucher",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -167,7 +230,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"UserID\":\"User001\",\n    \"Points\":\"1000\",\n    \"Value\":\"100\"\n\n}\n",
+									"raw": "{\n    \"UserID\":\"User001\",\n    \"Points\":\"100\",\n    \"Value\":\"10\"\n\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -196,11 +259,11 @@
 							"header": [
 								{
 									"key": "Date",
-									"value": "Mon, 27 Jun 2022 01:02:59 GMT"
+									"value": "Mon, 27 Jun 2022 03:25:51 GMT"
 								},
 								{
 									"key": "Content-Length",
-									"value": "171"
+									"value": "205"
 								},
 								{
 									"key": "Content-Type",
@@ -208,7 +271,63 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Generate new voucher, successful\",\"data\":{\"VID\":\"d4dbf69d-c25c-4b04-b0e0-611b5555e89d\",\"UserID\":\"User001\",\"Points\":\"1000\",\"Value\":\"100\"}}\n"
+							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Generate new voucher, successful\",\"data\":{\"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\"UserID\":\"User001\",\"Points\":\"100\",\"Value\":\"10\",\"CreatedDate\":\"2022-06-27 11:25:51\"}}\n"
+						},
+						{
+							"name": "Validation err - insufficient fund",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"UserID\":\"User001\",\n    \"Points\":\"100\",\n    \"Value\":\"10\"\n\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/getvoucher",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"getvoucher"
+									]
+								}
+							},
+							"status": "Payment Required",
+							"code": 402,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 03:34:45 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "81"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"[MS-VOUCHERS]: Insufficient balance in MasterFund\",\"data\":{}}\n"
 						}
 					]
 				},
@@ -250,7 +369,7 @@
 					},
 					"response": [
 						{
-							"name": "Consume Voucher",
+							"name": "Successfully Consume",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -262,7 +381,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"VID\":\"d4dbf69d-c25c-4b04-b0e0-611b5555e89d\",\n    \"UserID\":\"User001\",\n    \"MerchantID\":\"ertertert\",\n    \"Branch\":\"ertertert-s-0001\"\n}",
+									"raw": "{\n    \"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\n    \"UserID\":\"User001\",\n    \"MerchantID\":\"NTUC-sdklfjksdc\",\n    \"Branch\":\"NTUC-sdklfjksdcs-0002\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -291,11 +410,11 @@
 							"header": [
 								{
 									"key": "Date",
-									"value": "Mon, 27 Jun 2022 01:03:59 GMT"
+									"value": "Mon, 27 Jun 2022 03:27:10 GMT"
 								},
 								{
 									"key": "Content-Length",
-									"value": "189"
+									"value": "237"
 								},
 								{
 									"key": "Content-Type",
@@ -303,7 +422,175 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Consume voucher, successful\",\"data\":{\"VID\":\"d4dbf69d-c25c-4b04-b0e0-611b5555e89d\",\"UserID\":\"User001\",\"MerchantID\":\"ertertert\",\"Branch\":\"ertertert-s-0001\"}}\n"
+							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Consume voucher, successful\",\"data\":{\"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\"UserID\":\"User001\",\"MerchantID\":\"NTUC-sdklfjksdc\",\"Branch\":\"NTUC-sdklfjksdcs-0002\",\"RedeemedDate\":\"2022-06-27 11:27:10\"}}\n"
+						},
+						{
+							"name": "Validation err - Voucher not found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\n    \"UserID\":\"User001\",\n    \"MerchantID\":\"NTUC-sdklfjksdc\",\n    \"Branch\":\"NTUC-sdklfjksdcs-0002\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/consumevid",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"consumevid"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 03:45:52 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "82"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"[MS-VOUCHERS]: Voucher cannot be found in database\",\"data\":{}}\n"
+						},
+						{
+							"name": "Wrong Owner",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"d50aa4f1-385c-46d9-861f-6a6948d54b08\",\n    \"UserID\":\"User002\",\n    \"MerchantID\":\"NTUC-sdklfjksdc\",\n    \"Branch\":\"NTUC-sdklfjksdcs-0002\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/consumevid",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"consumevid"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 03:56:51 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "99"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"[MS-VOUCHERS]: UserID doesnt match the correct user in the database\",\"data\":{}}\n"
+						},
+						{
+							"name": "Double Consume",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"1dd3fd2c-b1ae-408e-8d17-f2345c94921b\",\n    \"UserID\":\"User001\",\n    \"MerchantID\":\"NTUC-sdklfjksdc\",\n    \"Branch\":\"NTUC-sdklfjksdcs-0002\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/consumevid",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"consumevid"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 04:13:50 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "101"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"[MS-VOUCHERS]: voucher has been used at branch: NTUC-sdklfjksdcs-0002\",\"data\":{}}\n"
 						}
 					]
 				},
@@ -345,7 +632,7 @@
 					},
 					"response": [
 						{
-							"name": "Merchant Claims",
+							"name": "Successfully Claimed",
 							"originalRequest": {
 								"method": "POST",
 								"header": [
@@ -357,7 +644,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"VID\":\"d4dbf69d-c25c-4b04-b0e0-611b5555e89d\",\n    \"Branch\":\"8903jdklfds38-ss001\"\n}",
+									"raw": "{\n    \"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\n    \"Branch\":\"8903jdklfds38-ss001\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -386,11 +673,11 @@
 							"header": [
 								{
 									"key": "Date",
-									"value": "Mon, 27 Jun 2022 01:05:20 GMT"
+									"value": "Mon, 27 Jun 2022 03:27:36 GMT"
 								},
 								{
 									"key": "Content-Length",
-									"value": "162"
+									"value": "196"
 								},
 								{
 									"key": "Content-Type",
@@ -398,7 +685,175 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Successfully claim, fund has been credited to 8903jdklfds38-ss001's bank\",\"data\":{\"VID\":\"d4dbf69d-c25c-4b04-b0e0-611b5555e89d\"}}\n"
+							"body": "{\"ok\":true,\"msg\":\"[MS-VOUCHERS]: Successfully claim, fund has been credited to 8903jdklfds38-ss001's bank\",\"data\":{\"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\"ClaimedOn\":\"2022-06-27 11:27:36\"}}\n"
+						},
+						{
+							"name": "Validation err - Voucher not found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"feaa5a23-e1be-479f-9a16-7b19c5883f4f\",\n    \"Branch\":\"8903jdklfds38-ss001\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/merchantclaims",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"merchantclaims"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 03:47:18 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "91"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"MS-VOUCHERS]: voucher ID not found! Please check voucher ID\",\"data\":{}}\n"
+						},
+						{
+							"name": "Wrong branch claiming voucher",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"0771097b-a150-4596-bcdb-66255c795ea0\",\n    \"Branch\":\"8903jdklfds38-ss001\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/merchantclaims",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"merchantclaims"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 04:08:30 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "191"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"MS-VOUCHERS]: voucher was used on: 2022-06-27 04:08:19 at location: NTUC-sdklfjksdcs-0002, a different branch: 8903jdklfds38-ss001 trying to claim the voucher.\",\"data\":{}}\n"
+						},
+						{
+							"name": "Double Claim Voucher",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Key",
+										"value": "8dm87493jd-74hdt-hf706-dgtey-93j0d46gf",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"VID\":\"0771097b-a150-4596-bcdb-66255c795ea0\",\n    \"Branch\":\"NTUC-sdklfjksdcs-0002\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://127.0.0.1:3000/api/merchantclaims",
+									"protocol": "https",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"merchantclaims"
+									]
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 27 Jun 2022 04:09:32 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "141"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\"ok\":false,\"msg\":\"MS-VOUCHERS]: voucher has been claimed before on: 2022-06-27 04:09:22 - by merchant ID: NTUC-sdklfjksdcs-0002\",\"data\":{}}\n"
 						}
 					]
 				}
